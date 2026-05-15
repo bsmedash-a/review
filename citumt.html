@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midterm Examination | Set A | Questions 1-100</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --main-color: #ffffff;
+            --text-color: #2c3e50;
+            --accent-color: #2c3e50;
+            --highlight-color: #2980b9;
+            --correct-color: #27ae60;
+            --wrong-color: #c0392b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 15px 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 4px solid var(--highlight-color);
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: white;
+            margin-right: 20px;
+            transition: color 0.2s;
+        }
+
+        .hamburger:hover { color: var(--highlight-color); }
+
+        .top-bar h1 {
+            margin: 0;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 320px;
+            background-color: #34495e;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            position: fixed;
+            height: calc(100% - 60px);
+            top: 60px;
+            z-index: 99;
+            transform: translateX(-100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+        }
+
+        #sidebar.open { transform: translateX(0); }
+
+        .sidebar-header {
+            padding: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: #2c3e50;
+            text-align: center;
+            border-bottom: 1px solid #1a252f;
+        }
+
+        .nav-grid {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .nav-btn {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 10px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover { background-color: #95a5a6; }
+        .nav-btn.active { background-color: var(--highlight-color); box-shadow: inset 0 0 0 2px white; }
+        .nav-btn.correct { background-color: var(--correct-color); color: white; }
+        .nav-btn.wrong { background-color: var(--wrong-color); color: white; }
+
+        /* Main Content */
+        #main-content {
+            flex: 1;
+            margin-top: 60px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .quiz-card {
+            background-color: var(--main-color);
+            width: 100%;
+            max-width: 900px;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            height: fit-content;
+            margin-bottom: 40px;
+        }
+
+        .question-header {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            white-space: pre-wrap;
+        }
+
+        /* 2-Column Layout for Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+
+        .option {
+            background-color: #f8f9fa;
+            border: 2px solid #bdc3c7;
+            padding: 16px 20px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            color: var(--text-color);
+        }
+
+        .option:hover:not(.disabled) {
+            background-color: #ebf5fb;
+            border-color: var(--highlight-color);
+        }
+
+        .option.actual-correct {
+            background-color: #e8f8f5;
+            border-color: var(--correct-color);
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .option.selected-wrong {
+            background-color: #fdedec;
+            border-color: var(--wrong-color);
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .option.disabled { cursor: default; }
+
+        .opt-letter {
+            font-weight: bold;
+            margin-right: 15px;
+            color: var(--highlight-color);
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .feedback.success { background-color: #e8f8f5; color: #27ae60; border: 1px solid var(--correct-color); display: block; }
+        .feedback.error { background-color: #fdedec; color: #c0392b; border: 1px solid var(--wrong-color); display: block; }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            border-top: 2px solid #ecf0f1;
+            padding-top: 20px;
+        }
+
+        .btn {
+            background-color: var(--highlight-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn:hover:not(:disabled) { background-color: #1f618d; }
+        .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        .btn-retake { background-color: #e67e22; }
+        .btn-retake:hover { background-color: #d35400; }
+
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 98; display: none; }
+        #overlay.show { display: block; }
+        
+        .error-message { color: var(--wrong-color); font-weight: bold; text-align: center; display: block; width: 100%; }
+        .note { font-size: 0.9rem; color: #7f8c8d; text-align: center; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <h1>Midterm Examination | SET A | Questions 1-100</h1>
+    </div>
+
+    <div id="overlay" onclick="toggleSidebar()"></div>
+    <div id="sidebar">
+        <div class="sidebar-header" id="nav-header">Loading...</div>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+
+    <div id="main-content">
+        <div class="quiz-card" id="quizCard">
+            <div class="question-header">
+                <span id="q-num">Initializing...</span>
+                <span id="score-display" style="color: var(--highlight-color);">Score: 0</span>
+            </div>
+            
+            <p class="note">Note: This quiz contains all 100 problems parsed from the uploaded midterm solution document. Solution texts have been filtered out automatically.</p>
+
+            <div class="question-text" id="q-text">Parsing problem set (this may take a moment)...</div>
+            <div class="options-grid" id="opt-grid"></div>
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="controls" id="controls" style="display:none;">
+                <button class="btn" id="btn-prev" onclick="prevQ()">&#8592; Previous</button>
+                <button class="btn btn-retake" id="btn-retake" style="display:none;" onclick="retakeQuiz()">Retake Quiz</button>
+                <button class="btn" id="btn-next" onclick="nextQ()">Next &#8594;</button>
+            </div>
+        </div>
+    </div>
+
+    <script id="raw-data" type="text/plain">
+1. For which type of process does the equation $dQ=Tds$
+A. Irreversible
+B. Isobaric
+C. Reversible*
+D. Thermodynamic process
+
+2. A fuel heater receives 23,200 Ibm of oil per hour at 80 F and discharges it at 160 F. The specific heat of the oil is 0.48 Btu/lbm-F. Find the rate of heat transfer.
+A. 980,000 Btu/hr
+B. 819,000 Btu/hr
+Solution:
+$Q_{oll}=m_{oll}c_{oll}\Delta t$
+C. 910,000 Btu/hr
+D. 891,000 Btu/hr*
+
+3. An ideal Otto cycle operates with temperature of 370 C at the end of a compression process, a maximum temperature of 1510 C and a minimum temperature of 20 C. What is the temperature at the beginning of the heat rejection process?
+A. 395.5 C
+B. 359.5 C
+Solution:
+C. 539.5 C*
+D. 593.5 C
+
+4. What is the temperature difference of the cycle id the entropy difference is AS, and the work done is W?
+A. $W-\Delta S$
+B. $W/\Delta S^{*}$
+C. AS/W
+D. AS-W
+
+5. One pound of air (consider here a perfect gas) with an initial temperature of 200F is allowed to expand without flow between pressures of 90 and 15 psia. What is the specific work if it follows $PV^{1.5}=c?$
+A. $81~Btu/lbm$
+B. $31~Btu/lbm$
+Solution:
+C. 45.2 Btu/lbm
+D. $40.7~Btu/lbm^{*}$
+
+6. Which of the following is standard temperature and pressure (STP)?
+A. 0K & 1 atm
+C. 32 F & and 0 atm
+B. 0F & 0 atm
+D. 0 C & 1 atm*
+
+7. What is the available energy in Btu/lb for a Carnot cycle with a source temperature of 3460R, a sink temperature of 520R and an energy supply as heat of 100 Btu to one pound of a working substance?
+A. 15
+B. 85*
+Solution:
+C. 26.5
+D. 11.5
+
+8. Energy changes are represented by all except which one of the following?
+A. mCdt
+B. TdsPdV
+C. - VdP
+D. $dQ/T^{*}$
+
+9. During the steady flow process, the pressure of the working substance drops from 200 to 20 psia, the speed increases from 200 to 1000 fps, the internal energy of the system decreases $25~Btu/lbm,$ and the specific volume increases from 1 to $8~ft3/lbm$. No heat is transferred. Determine the work done per Ibm.
+A. 13.24 $Btu/lbm^{*}$
+B. 12.34 Btu/lbm
+Solution:
+C. $10.45~Btu/lbm$
+D. $15.25~Btu/lbm$
+
+10. In flow process, neglecting KE and PE changes  VdP represents which item below?
+A. Heat transfer
+B. Shaft work*
+C. Enthalpy change
+D. Closed system work
+
+11. A Carnot cycle has a maximum temperature of 550 F and minimum temperature of 100 F. If the heat added is $4200~Btu/min$ find the horsepower output of the engine.
+A. 34.53
+B. 44.13*
+Solution:
+C. 40.56
+D. 65.40
+
+12. A diesel cycle has a cut-off ratio of 1.9 and expansion ratio of 4. Find the clearance of the cycle.
+Α. 9.11%
+B. 5.55%
+Solution:
+C. 11.11%
+D. 15.15%*
+
+13. The true pressure measured above a perfect vacuum.
+A. Absolute pressure*
+B. Gage pressure
+C. Atmospheric pressure
+D. Vacuum pressure
+
+14. A spark ignition engine operates on an Otto cycle with a compression ratio of 9 and temperature limits of $30^{\circ}C$ and $1000^{\circ}C.$ If the power input is 500 kW. Calculate the mass flow rate of air.
+A. $.99~kg/s$
+B. $.99~kg/s$
+Solution:
+C. 2.19 $kg/s^{*}$
+D. 2.59 kg/s
+
+15. The stroke of a gas engine which works on the constant volume cycle is 450 mm. The pressure at the beginning of the compression is 1.01 bar and at the end of the compression it is 11.1bar. Assuming compression follows the law $PV^{1.36}=C,$ calculate the clearance between the piston and cylinder cover at the end of compression in mm of length.
+A. 83.26 mm
+B. 73.26 mm
+Solution:
+C. $93.26~mm^{*}$
+D. 103.26 mm
+
+16. The heat exchanger used in an Ericsson cycle is
+A. Regenerator
+B. Combustion chamber
+C. intercooler
+D. recuperator*
+
+17. An ideal Ericsson engine using helium ( $cp=1.25~Btu/lbm-R,$ $R=$ 0.4961 $Btu/lbm-R)$ as the working fluid operates between temperature limits of 550 and 3000 R and pressure limits of 25 and 200 psia. Assuming a mass flow rate of $14~lbm/s,$ determine the thermal efficiency of the cycle.
+Α. 61.87%
+B. 76.18%
+Solution:
+C. 81.67%*
+D. 67.18%
+
+18. The pressure exerted in a vessel by a mixture of gases is equal to the sum of the pressures that each separate gas would exert if it alone occupied the whole volume of the vessel.
+A. Boyle's law
+B. Charles' law
+C. Dalton's law*
+D. Avogadro's law
+
+19. During the steady flow process, the pressure of the working substance drops from 200 to 20 psia, the speed increases from 200 to 1000 fps, the internal energy of the system decreases $25~Btu/lbm$ and the specific volume increases from 1 to $8~ft3/lbm$ No heat is transferred. Determine the work done in hp for 10 Ibm per minute.
+A. 1.23 hp
+B. 3.12 hp *
+Solution:
+C. 5.45 hp
+D. 4.21 hp
+
+20. A thermodynamic system that generally serves as a heat source or heat sink for another system?
+A. Combustion chamber
+B. Heat reservoir*
+C. heat engine
+D. Stirling engine
+
+21. Two vessels A and B of different sizes are connected by a pipe with a valve. Vessel A contains 142 L of air at 2767.92 kPa, 93.33C. Vessel B of unknown volume contains air at 68.95 kPa, 4.44C. The valve is opened and when the properties have been determined, it is found that the pressure is 1378.98 kPa, temperature of 43.33C. What is the volume of vessel B?
+A. 120.45 L
+B. 110.4 L *
+Solution:
+C. 105.46 L
+D. 115.5 L
+
+22. A heat exchange process where in the product of pressure and volume remains constant is called:
+A. Heat exchange process
+B. Isentropic process
+C. throttling process
+D. hyperbolic process*
+
+23. 10 ft3 of helium at 20 psia and 80F are compressed isentropically to 80 psia. The helium is then expanded polytropically with $n=1.35$ to the initial temperature. An isothermal process returns helium to the initial state. What is the total heat added to helium? (take $Cv=0.75$ Btu/lbm-R)
+A. 37.63 Btu
+B. 34.5 Btu
+Solution:
+C. 48.3 Btu
+D. 32.45 Btu
+
+24. Under ideal conditions: isothermal, isobaric, isochoric and adiabatic processes are:
+A. Dynamic processes
+B. Stable processes
+C. quasi-static processes*
+D. thermodynamic processes
+
+25. A diesel cycle has a 16 to 1 compression ratio and peak cycle temperature of 2912 R. Conditions at the beginning of compression are 14.7 psia and 60F. Assuming constant specific heat, what is the cut-off ratio of the cycle?
+Α. 1.85*
+B. 1.58
+Solution:
+C. 2.20
+D. 2.02
+
+26. A non-flow (closed) system contains 1 lb of an ideal gas ( $Cp=0.24,$ $Cv=0.17)$. The gas temperature is increased by 10F while 5 Btu of work are done by the gas. What is the heat transfer in Btu?
+A. -3.3 Btu
+B. -2.6 Btu
+Solution:
+C. +6.7 Btu*
+D. +7.4 Btu
+
+27. Isentropic flow is
+A. Perfect gas flow
+B. Irreversible adiabatic flow
+C. ideal fluid flow
+D. reversible adiabatic flow*
+
+28. Work of a polytopic $(n=1.21)$ compression of air $(Cp/Cv=1.4)$ in a system with moving boundary from 15 psia and 1.0 ft3 to 150 psia and 0.15 ft3 is:
+A. 35.5 ft-lbf
+B. 324 ft-lbf
+Solution:
+C. 1080 ft-lbf
+D. 5150 ft-lbf*
+
+29. At critical point the latent enthalpy of vaporization is
+A. Dependent on temperature
+B. Zero*
+C. minimum
+D. maximum
+
+30. For a certain ideal gas, $R=25.8$ ft-lbf/lbm-R and $k=1.09$, occupied a volume of 15ft3 at 75 psia and 80F. If 30 Btu of heat is transferred to this gas at constant volume, what is the resulting temperature?
+A. 547 R*
+B. 457 R
+Solution:
+C. 745 R
+D. 345 R
+
+31. Which of the following cycles has two isothermal and two isometric processes?
+A. Joule cycle
+B. Diesel cycle
+C. Ericsson cycle
+D. Stirling cycle*
+
+32. Isentropic compression of 1 ft3 of air at 20 psia to a pressure of 100 psia gives a final volume of:
+A. 0.16 ft3
+B. 0.20 ft3
+Solution:
+C. 0.32 ft3*
+D. 0.40 ft3
+
+33. Solubility of a gas in a liquid at small concentration can be represented by which law?
+A. Clausius-Clapeyron law
+B. Henry's law*
+C. Dalton's law
+D. Roult's law
+
+34. Determine the theoretical horsepower required for the isothermal compression of 800 ft3/min of air from 14.7 psia to 120 psía.
+A. 372 hp
+B. $109~hp^{*}$
+Solution:
+C. 173 hp
+D. 273 hp
+
+35. In an ideal diesel cycle the change of entropy for the heat rejection process is 0.1662 Btu/lbm-R. The temperature and pressure at the beginning of the isentropic compression are 75 F and 15 psia, respectively. Pressure at the end of the isentropic compression process is 555 psia. What is the maximum temperature attained by the cycle?
+A. 2510 F
+B. 2670 F
+Solution:
+C. 1041 F
+D. 2540 F*
+
+36. Is a measure of the energy that is no longer available to perform useful work within the current environment?
+A. Absolute entropy*
+B. Absolute enthalpy
+C. Fugacity
+D. Molar value
+
+37. A dual cycle has an initial temperature of 30 C. The compression ratio is 6 and the heat addition at constant volume process is $770.6~kJ/kg$. If the cut-off ratio is 2.5, what is the maximum temperature of the cycle?
+Α. 3638.50 C*
+Β. 3365.50 C
+Solution:
+C. 3565.50 C
+D. 3965.50 C
+
+38. What is the maximum thermal efficiency possible for a power cycle operating between 600 C and 110 C?
+Α. 47%
+B. 56%*
+Solution:
+C. 63%
+D. 74%
+
+39. A six-cylinder, two-stroke marine diesel engine operates at a piston speed of 1200 rpm. The 5 in. x 5.6 in. engine has an 18:1 compression ratio. If the air intake is at 14.8 psia and 82° F, what is the clearance?
+Α. 5.3%
+B. 5.9%*
+Solution:
+C. 3.5%
+D. 9.5%
+
+40. The process in which heat energy is transferred to thermal energy storage device is known as:
+A. Adiabatic
+B. Regeneration*
+C. intercooling
+D. heat transfer
+
+41. A drum 6 inches diameter and 40 inches long contained acetylene at 250 psia and 90F. After some of the acetylene was used, the pressure was 200 psia and the temperature was 85F. What portion of the acetylene was used? Take $R=59.35$ ft-lbf/lbm-R.
+Α. 14.56%
+B. 19.26%*
+Solution:
+C. 12.45%
+D. 18.43%
+
+42. Which of the following is not the universal gas constant?
+A. 1545 ft-lbf/lbmol-R
+B. 8314 kJ/mol-K*
+C. 8.314 J/mol-K
+D. 8.314 kJ/kmol-K
+
+43. For a certain ideal gas, $R=25.8$ ft-lbf/lbm-R and $k=1.09.$ What is the value of the specific heat at constant volume?
+A. 0.4016 Btu/lbm-R
+B. 0.543 Btu/lbm-R
+C. 0.3685 Btu/lbm-R*
+D. 0.3024 Btu/lbm-R
+
+44. An ideal gas mixture consists of 2 kmol of nitrogen gas and 4 kmol of carbon dioxide gas. The mass fraction of carbon dioxide is:
+A. 0.175
+B. 0.241*
+Solution:
+C. 0.258
+D. 0.507
+
+45. Stagnation enthalpy represents the enthalpy of a fluid when it is brought to rest
+A. Isometrically
+B. Adiabatically*
+C. isothermally
+D. isobarically
+
+46. 10 ft3 of air at 30 psia and 400F is cooled to 140F at constant volume. What is the entropy change?
+A. +0.0581 Btu/R
+B. $-0.0581~Btu/R^{*}$
+Solution:
+C. 0
+D. 0.120 Btu/R
+
+47. A diesel cycle has a 16 to 1 compression ratio and peak cycle temperature of 2912 R. Conditions at the beginning of compression are 14.7 psia and 60F. Assuming constant specific heat, the nearest value of cycle thermal efficiency is
+Α. 72.5%
+B. 62.2%*
+Solution:
+C. 64.9%
+D. 58.5%
+
+48. A liquid boils when the vapor pressure equals
+A. Gage pressure
+B. Critical pressure
+C. ambient pressure*
+D. 1 atm
+
+49. A 1-hp stirring motor is applied to a tank containing 22.7 kg of water. The stirring action is applied for one hour and the tank losses 850 $kJ/hr$ of heat. Calculate the rise in temperature of the tank after one hour considering that the process occurs at constant volume?
+A. $+19.3~C^{*}$
+B. +14.5 C
+Solution:
+C. +12.45 C
+D. +23.45 C
+
+50. Isentropic flow is
+A. Perfect gas flow
+B. Irreversible adiabatic flow
+C. ideal fluid flow*
+D. reversible adiabatic flow
+
+51. An engine working in a closed thermodynamic cycle produces 400 Btu of work per lbs of working substance passing through the machine. The pump in the cycle requires 6 $Btu/lbm$ of working substance in the performance of its duty. What is the net work of the cycle?
+A. $06~Btu/lbm$
+B. $-406~Btu/lbm$
+Solution:
+C. $394~Btu/lbm^{*}$
+D. $-394~Btu/lbm$
+
+52. A certain gas with $C_{p}=0.529~Btu/lbm-$ R and $R=96.2~ft-lbf/lbm-R$ expands from 5 ft3 and 80F to 15 ft3 while the pressure remains constant at 15.5 psia. Compute the change of enthalpy.
+A. 234 Btu
+B. 130 Btu
+Solution:
+C. 122 Btu*
+D. 105 Btu
+
+53. Assuming real processes, the net entropy change in the universe:
+A. Must be calculated
+B. Equals zero
+C. is negative
+D. is positive*
+
+54. One pound of air (consider here a perfect gas) with an initial temperature of 200F is allowed to expand without flow between pressures of 90 and 15 psia. What is the specific work if it follows $PV^{k}=c?$
+A. $45.2~Btu/lbm^{*}$
+B. $-45.2~Btu/lbm$
+Solution:
+C. $40.7~Btu/lbm$
+D. $.-40.7~Btu/lbm$
+
+55. Air in an ideal Diesel cycle is compressed from 3 L to 0.15 L and then it expands during the constant pressure heat addition process to 0.5 L. Under cold air standard conditions, the thermal efficiency of this cycle is:
+A. 59%*
+B. 70%
+Solution:
+C. 65%
+D. 54%
+
+56. In an actual gas, the molecular collisions are
+A. Plastic
+B. Elastic
+C. inelastic*
+D. inplastic
+
+57. Air in the amount of 280 m3 per minute is to be heated from 20C to 75C in a tubular heater by means of a saturated steam at 107C condensing on the outside of the tubes. How much steam would be required if the heat of vaporization of steam at 107C is $2240~kJ/kg?$
+A. $423~kg/hr$
+B. $448~kg/hr$
+Solution:
+C. $473~kg/hr$
+D. $.497~kg/hr^{*}$
+
+58. What is referred by the control volume?
+A. An isolated system
+B. Closed system
+C. Fixed region in space*
+D. Reversible process only
+
+59. Air flows steadily through an engine at constant temperature, 400 K. find the work per kg if the exit pressure is $1/3$ the inlet pressure and the inlet pressure is 207 kPa. Assume that kinetic energy and potential energy variation is negligible.
+A. 234 Btu
+B. 130 Btu*
+Solution:
+C. 120 Btu
+D. 105 Btu
+
+60. In a spark ignition engine, the detonation occurs near the
+A. end of combustion*
+B. beginning of combustion
+C. middle of combustion
+D. beginning of interaction
+
+61. A Carnot power cycle has a maximum cycle temperature of 800 F. The change of entropy for the heat addition process is $0.085~Btu/lbm$ R. Heat is rejected at a rate of $45.0~Btu/lbm.$ What is the minimum cycle temperature in F?
+A. 101.7 F
+B. 69.4 F*
+Solution:
+C. 107.1 F
+D. 62.1 F
+
+62. An Otto engine has a clearance of 7%. It produces 300 kW power. What is the amount of heat rejected in kW?
+A. 452 kW
+B. 200 kW
+Solution:
+C. 300 kW
+D. 152 kW*
+
+63. The continuity equation is applicable to
+A. Viscous, unviscous fluids
+B. Compressibility of fluids
+C. Conservation of mass*
+D. steady, unsteady flow
+
+64. Determine the air standard efficiency of an engine operating on the diesel cycle when the suction pressure is 99.97 kPa and the fuel is injected for 7% of the stroke, the clearance volume is 9% of the stroke. Assume k = 1.4.
+Α. 50.02%
+B. 58.08%*
+Solution:
+C. 60.02%
+D. 62.11%
+
+65. Which of the following occurs in a reversible polytropic process?
+A. Enthalpy remains constant
+B. Internal energy does not change
+C. Some heat transfer occurs*
+D. Entropy remains constant
+
+66. At the beginning of the compression process in an ideal Diesel cycle the pressure is 15 psia, 70 F and 6.54 ft3. The compression ratio of the cycle is 15, and the heat supplied is 188 Btu. At the end of the compression process, the pressure is 665 psia and the temperature is 1108 F. Using constant specific heat. What is the thermal efficiency of the cycle?
+A. 56.0%
+B. 60.5%*
+Solution:
+C. 50.6%
+D. 65.0%
+
+67. An Otto cycle with air as the working fluid has a compression ratio of 8.2. Under cold air standard conditions, the thermal efficiency of this cycle is
+Α. 24%
+B. 43%
+Solution:
+C. 52%
+D. 57%*
+
+68. What is the area under the curve of a T-s diagram?
+A. Volume
+B. Heat*
+C. work
+D. entropy
+
+69. A Carnot engine receives 100 kJ of heat from a hot reservoir at 370C and rejects 37 kJ of heat. Determine the temperature of the cold reservoir.
+A. -35 C*
+B. 100 C
+Solution:
+C. 130 C
+D. 230 C
+
+70. In a dual combustion cycle the specific volume at the end of isentropic compression is 1.09 ft3/lbm and the highest temperature in the cycle is 2444F. The heat supplied to the cycle at constant volume is 100 Btu/lbm. At the beginning of the compression process, the pressure and temperature are 14.7 psia and 60F, respectively. For air-standard assumption, what is the compression ratio of the cycle?
+A. 10
+B. 11
+Solution:
+C. 12*
+D. 13
+
+71. If an initial volume of an ideal gas is compressed to one-half its original volume and twice its original temperature, the pressure:
+A. Doubles
+B. Halves
+C. quadruples*
+D. triples
+
+72. At the start of compression in an air-standard Otto cycle with a compression ratio of 10, air is at 100 kPa and 40°C.heat addition of 2800 $k]/kg$ is made. What is most nearly thermal efficiency?
+A. 52%
+B. 60%*
+Solution:
+C. 64%
+D. 67%
+
+73. Work is _____ between the system and the surroundings.
+A. work interaction
+B. heat interaction
+C. energy interaction*
+D. none of these
+
+74. The compression ratio of an air standard gasoline engine is 8. The initial pressure and temperature are 100 kPa and 25degree Celsius, If heat added in 1850 kJ kg, what is the temperature after isentropic expansion?
+A. 1147K
+Β. 1399 K
+Solution:
+C. 1423 K*
+D. 1278 K
+
+75. When four events takes place in one revolution of a crankshaft of an engine, the engine is called:
+A. Rotary engine
+B. Two-stroke engine*
+C. Reciprocating engine
+D. four-stroke engine
+
+76. One pound of saturated steam at 100 psia is expanded in a reversible non-flow process from a specific volume of 0.017736 $ft3/lbm$ to a specific volume of $4.434~ft3/lbm.$ If the pressure remains constant and the internal energy increases 807.5 Btu/lbm during the process, determine how much heat is transferred, $Btu/lbm,$
+A. 889.2 Btu/lbm (abstracted)
+B. 889.2 Btu/lbm (added)*
+Solution:
+C. 898.2 $2~Btu/lbm$ (abstracted)
+D. 898.2 Btu/lbm (added)
+
+77. A closed system may refer to
+A. Control mass*
+B. Control energy
+C. Control volume
+D. Control temperature
+
+78. In an ideal diesel cycle the change of entropy for the heat rejection process is 0.1662 Btu/lbm-R. The temperature and pressure at the beginning of the isentropic compression are 75 F and 15 psia, respectively. Pressure at the end of the isentropic compression process is 555 psia. What is the temperature at the beginning of the heat addition process?
+A. 210 F
+B. 670 F
+Solution:
+C. 1041 F*
+D. 2540 F
+
+79. The indicator used to determine the anti-knock characteristics of gasoline.
+A. Aniline point
+B. Octane number*
+C. Cetane number
+D. Diesel index
+
+80. In an ideal Otto cycle, air is compressed from $1.20~kg/m3$ and 2.2 L to 0.26 L, and the net work output of the cycle is 440 $kJ/kg.$ The mean effective pressure (MEP) for this cycle is
+A. 367 kPa
+B. 599 $kPa^{*}$
+Solution:
+C. 416 kPa
+D. 612 kPa
+
+81. Detonation of pinging noise is due to:
+A. Early timing of fuel injection
+B. Head of piston carbonized
+C. late timing of fuel injection*
+D. valve springs weak or broken
+
+82. At standard atmospheric pressure saturated steam has a specific volume of $.80~ft3/lbm$. If the enthalpy of the same vapor is 1150.5 $Btu/lbm$, calculate the internal energy of the steam, $Btu/lbm.$
+A. 1110.9 Btu/lbm
+B. 1150.0 Btu/lbm
+Solution:
+C. 1077.6 Btu/lbm*
+D. -555579.7 Btu/lbm
+
+83. The thermal efficiency of a dual cycle engine with fixed compression ratio and fixed quantity of heat but with increase in pressure ration, will
+A. Increase*
+B. Remains the same
+C. decrease
+D. depends on cut-off ratio
+
+84. A steady flow system, a substance enters with the following conditions: $p_{1}=20~psia,$ $v_{1}=11.7~ft^{3}/lb,$ $u_{1}=101.6$, $V_{1}=150~ft/sec$ The working substance leaves the system with the following conditions: $p_{2}=25~psia,$ $v_{2}=10.3,$ $u_{2}=149.0~Btu/lb$, and $V_{2}=500~ft/sec.$ There are $10~Btu/lb$ transferred heat is added to the substance as it is through the system. Determine the work done on or by the fluid, Btu/lb.
+A. $+46.3~Btu/lbm$ (by)
+B. -46.3 Btu/lbm (on)*
+Solution:
+C. $+64.3~Btu/lbm$ (by)
+D. $-64.3~Btu/lbm$ (on)
+
+85. The enthalpy of a substance at a specified state due to its chemical composition.
+A. enthalpy of reaction
+B. enthalpy of combustion
+C. enthalpy of formation*
+D. enthalpy of vaporization
+
+86. 2 kg of gas undergo a reversible non-flow process at 350 kPa while the volume increases from 0.4734 m3 to 0.9468 m3. Find the work done per unit mass of gas.
+A. 165.6 kJ/kg
+B. 82.8 kJ/kg*
+Solution:
+C. 166.5 kJ/kg
+D. 88.2 kJ/kg
+
+87. The mean effective pressure of a diesel cycle having fixed compression ratio will increase if cut-off ratio is:
+A. Increased*
+B. Decreased
+C. independent of compression ratio
+D. depends on other factor
+
+88. An air standard Diesel cycle has a compression ratio of 18.At the beginning of the compression process, air is at 100kPa and 15 deg C. If the mean effective pressure is 1362kPa and the heat of combustion is 1800 $kJ/kg,$ find the thermal efficiency.
+Α. 0.496
+B. 0.587*
+Solution:
+C. 0.597
+D. 0.496
+
+89. One pound of air (consider here a perfect gas) with an initial temperature of 200F is allowed to expand without flow between pressures of 90 and 15 psia. What is the specific work if it follows $PV=c?$
+A. $15.2~Btu/lbm$
+B. $81~Btu/lbm^{*}$
+Solution:
+C. $40.7~Btu/lbm$
+D. 0
+
+90. What is true about the polytropic exponent n for perfect gas undergoing an isobaric process?
+A. $n>0$
+B. $n<0$
+C. $n=\infty$
+D. $n=0^{*}$
+
+91. Air initially at 10 F and 100 psia and occupying a volume of 0.5 ft3 undergoes a reversible non-flow constant temperature process such that the final pressure becomes 20 psia. Find the work done.
+A. 11,590 ft-lbf
+B. 11,590 ft-lbf*
+Solution:
+C. -80.5 ft-lbf
+D. 80.5 ft-lbf
+
+92. In a Carnot cycle engine, the volume of helium after adiabatic compression is 23.8% of that before the compression. The sink temperature is $30^{\circ}C.$ Determine the thermal efficiency.
+Α. 60.7%
+Β. 62.7%
+Solution:
+C. 61.6%*
+D. 63.7%
+
+93. Heat added to or removed from a substance that cause a change of temperature
+A. Absolute Heat
+B. Specific Heat
+C. Latent heat
+D. Sensible Heat*
+
+94. A Carnot cycle is represented by a rectangle in a T-s diagram that operates between temperature limits of 300K and 650K. Inscribed within a rectangle is a triangle with based coincides with the sink temperature and the triangle apex with the source temperature. Considering that the base of the triangle is three times that of its altitude. Determine the thermal efficiency of the cycle represented by a triangle.
+Α. 44.88%
+B. 43.66%
+Solution:
+C. 36.84%*
+D. 34.68%
+
+95. In an ideal Otto cycle, the temperature at the end of the heat addition process is 2600 F, and the temperature at the end of the expansion process is 883 F. What is the compression ratio?
+A. 14.9
+B. 17.9
+Solution:
+C. 12.7
+D. 7.8*
+
+96. Form of energy associated with the kinetic energy of the random motion of large number of molecules within a body.
+A. Internal energy
+B. Thermal energy*
+C. Kinetic Energy
+D. Heat
+
+97. What is the approximate value of temperature of water having enthalpy of $208~Btu/lbm?$
+A. $138.89^{\circ}C$
+B. $115.55^{\circ}C^{*}$
+Solution:
+C. $258.67^{\circ}C$
+D. $8.67^{\circ}C$
+
+98. A container filled with helium is dropped 4900 m above the ground, find the change of temperature?
+A. $12.43^{\circ}C$
+B. 9.43°
+Solution:
+C. $15.43^{\circ}C^{*}$
+D. $8.43^{\circ}C$
+
+99. Which of the following thermodynamic relations is INCORRECT?
+A. $TdS=dU+pdV$
+B. $TdS=dH-VdP$
+C. $U=Q-W^{*}$
+D. $H=U+pV$
+
+100. Half pound of gas undergoes a reversible non-flow process with the pressure remaining constant at 50 psia while the volume increases from 4 ft3 to 8 ft3. Find the work done in $Btu/lbm.$
+A. $37.02~Btu/lbm$
+B. $74.04~Btu/lbm^{*}$
+Solution:
+C. $0.51~Btu/lbm$
+D. $7.400~Btu/lbm$
+    </script>
+
+    <script>
+        const rawText = document.getElementById('raw-data').textContent.trim();
+        const quizData = [];
+        let totalScore = 0;
+        let currentIdx = 0;
+
+        function initApp() {
+            const lines = rawText.split('\n');
+            let currentQuestion = null;
+            let inSolution = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (line === '') continue;
+
+                // Match question start
+                const qMatch = line.match(/^(\d{1,3})\.\s+(.*)/);
+                
+                if (qMatch) {
+                    if (currentQuestion && currentQuestion.options.length > 0) {
+                        quizData.push(currentQuestion);
+                    }
+                    currentQuestion = {
+                        num: parseInt(qMatch[1]),
+                        qText: qMatch[2],
+                        options: [],
+                        ans: 'A', // default
+                        userAnswer: null
+                    };
+                    inSolution = false;
+                } else if (currentQuestion) {
+                    if (line.toLowerCase().startsWith('solution')) {
+                        inSolution = true;
+                        continue;
+                    }
+                    
+                    let foundOption = false;
+                    // Regex to extract standard A. / B. / C. / D. options
+                    const optRegex = /(?:^|\s)([A-D])\.\s*(.*?)(?=(?:\s+[A-D]\.\s*)|$)/g;
+                    let match;
+                    while ((match = optRegex.exec(line)) !== null) {
+                        foundOption = true;
+                        let optLetter = match[1].toUpperCase();
+                        let optText = match[2].trim();
+                        
+                        if (optText.endsWith('*')) {
+                            currentQuestion.ans = optLetter;
+                            optText = optText.replace(/\*+$/, '').trim();
+                        }
+                        
+                        if (!currentQuestion.options.find(o => o.letter === optLetter)) {
+                            currentQuestion.options.push({ letter: optLetter, text: optText });
+                        }
+                    }
+
+                    if (!foundOption) {
+                        if (!inSolution) {
+                            if (currentQuestion.options.length === 0) {
+                                currentQuestion.qText += " " + line;
+                            } else {
+                                let lastOpt = currentQuestion.options[currentQuestion.options.length - 1];
+                                lastOpt.text += " " + line;
+                                if (lastOpt.text.endsWith('*')) {
+                                    currentQuestion.ans = lastOpt.letter;
+                                    lastOpt.text = lastOpt.text.replace(/\*+$/, '').trim();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Push the last question
+            if (currentQuestion && currentQuestion.options.length > 0) {
+                quizData.push(currentQuestion);
+            }
+
+            quizData.sort((a, b) => a.num - b.num);
+
+            if (quizData.length === 0) {
+                document.getElementById('q-text').innerHTML = "<span class='error-message'>Parse Error: Could not extract questions from the provided file.</span>";
+                return;
+            }
+            
+            document.getElementById('nav-header').innerText = `1 to 100 Navigator`;
+            document.getElementById('controls').style.display = 'flex';
+            buildNav();
+            renderQuestion();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+
+        function buildNav() {
+            const grid = document.getElementById('navGrid');
+            grid.innerHTML = '';
+            quizData.forEach((q, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.id = `nav-${i}`;
+                btn.innerText = q.num;
+                btn.onclick = () => { 
+                    currentIdx = i; 
+                    renderQuestion(); 
+                    if(window.innerWidth <= 768) toggleSidebar(); 
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateNavStyles() {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${currentIdx}`).classList.add('active');
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentIdx];
+            document.getElementById('q-num').innerText = `Question ${q.num} (Problem ${currentIdx + 1} of ${quizData.length})`;
+            document.getElementById('q-text').innerText = q.qText;
+            
+            const grid = document.getElementById('opt-grid');
+            grid.innerHTML = '';
+            
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback';
+            feedback.innerText = '';
+            feedback.style.display = 'none';
+
+            q.options.forEach((opt) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                
+                // Final clean of any lingering asterisks just for display
+                let textToDisplay = opt.text.replace(/\*$/, '').trim();
+
+                btn.innerHTML = `<span class="opt-letter">${opt.letter}.</span> ${textToDisplay}`;
+                
+                if (q.userAnswer) {
+                    btn.classList.add('disabled');
+                    if (opt.letter === q.ans) {
+                        btn.classList.add('actual-correct');
+                    }
+                    if (opt.letter === q.userAnswer && q.userAnswer !== q.ans) {
+                        btn.classList.add('selected-wrong');
+                    }
+                } else {
+                    btn.onclick = () => handleAnswer(opt.letter);
+                }
+                grid.appendChild(btn);
+            });
+
+            if (q.userAnswer) {
+                feedback.style.display = 'block';
+                if (q.userAnswer === q.ans) {
+                    feedback.className = 'feedback success';
+                    feedback.innerText = 'Correct!';
+                } else {
+                    feedback.className = 'feedback error';
+                    feedback.innerText = `Incorrect! The correct answer is ${q.ans}.`;
+                }
+            }
+
+            // Update Controls
+            document.getElementById('btn-prev').disabled = currentIdx === 0;
+            
+            const btnNext = document.getElementById('btn-next');
+            const btnRetake = document.getElementById('btn-retake');
+
+            if (currentIdx === quizData.length - 1) {
+                btnNext.style.display = 'none';
+                btnRetake.style.display = 'inline-block';
+            } else {
+                btnNext.style.display = 'inline-block';
+                btnRetake.style.display = 'none';
+            }
+
+            updateNavStyles();
+            
+            if (window.MathJax) {
+                MathJax.typesetPromise([document.getElementById('quizCard')]);
+            }
+        }
+
+        function handleAnswer(letter) {
+            const q = quizData[currentIdx];
+            q.userAnswer = letter;
+            
+            const navBtn = document.getElementById(`nav-${currentIdx}`);
+            if (letter === q.ans) {
+                totalScore++;
+                navBtn.classList.add('correct');
+            } else {
+                navBtn.classList.add('wrong');
+            }
+            
+            document.getElementById('score-display').innerText = `Score: ${totalScore}`;
+            renderQuestion();
+        }
+
+        function nextQ() { if (currentIdx < quizData.length - 1) { currentIdx++; renderQuestion(); } }
+        function prevQ() { if (currentIdx > 0) { currentIdx--; renderQuestion(); } }
+
+        function retakeQuiz() {
+            quizData.forEach(q => { q.userAnswer = null; });
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('correct');
+                b.classList.remove('wrong');
+            });
+            totalScore = 0;
+            currentIdx = 0;
+            document.getElementById('score-display').innerText = `Score: 0`;
+            renderQuestion();
+            document.getElementById('main-content').scrollTo(0,0);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
