@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prelim Examination | Set A</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --main-color: #ffffff;
+            --text-color: #2c3e50;
+            --accent-color: #2c3e50;
+            --highlight-color: #2980b9;
+            --correct-color: #27ae60;
+            --wrong-color: #c0392b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 15px 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 4px solid var(--highlight-color);
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: white;
+            margin-right: 20px;
+            transition: color 0.2s;
+        }
+
+        .hamburger:hover { color: var(--highlight-color); }
+
+        .top-bar h1 {
+            margin: 0;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 320px;
+            background-color: #34495e;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            position: fixed;
+            height: calc(100% - 60px);
+            top: 60px;
+            z-index: 99;
+            transform: translateX(-100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+        }
+
+        #sidebar.open { transform: translateX(0); }
+
+        .sidebar-header {
+            padding: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: #2c3e50;
+            text-align: center;
+            border-bottom: 1px solid #1a252f;
+        }
+
+        .nav-grid {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .nav-btn {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 10px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover { background-color: #95a5a6; }
+        .nav-btn.active { background-color: var(--highlight-color); box-shadow: inset 0 0 0 2px white; }
+        .nav-btn.correct { background-color: var(--correct-color); color: white; }
+        .nav-btn.wrong { background-color: var(--wrong-color); color: white; }
+
+        /* Main Content */
+        #main-content {
+            flex: 1;
+            margin-top: 60px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .quiz-card {
+            background-color: var(--main-color);
+            width: 100%;
+            max-width: 900px;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            height: fit-content;
+            margin-bottom: 40px;
+        }
+
+        .question-header {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            white-space: pre-wrap;
+        }
+
+        /* 2-Column Layout for Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+
+        .option {
+            background-color: #f8f9fa;
+            border: 2px solid #bdc3c7;
+            padding: 16px 20px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            color: var(--text-color);
+        }
+
+        .option:hover:not(.disabled) {
+            background-color: #ebf5fb;
+            border-color: var(--highlight-color);
+        }
+
+        .option.actual-correct {
+            background-color: #e8f8f5;
+            border-color: var(--correct-color);
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .option.selected-wrong {
+            background-color: #fdedec;
+            border-color: var(--wrong-color);
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .option.disabled { cursor: default; }
+
+        .opt-letter {
+            font-weight: bold;
+            margin-right: 15px;
+            color: var(--highlight-color);
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+            white-space: pre-wrap;
+        }
+
+        .feedback.success { background-color: #e8f8f5; color: #27ae60; border: 1px solid var(--correct-color); display: block; }
+        .feedback.error { background-color: #fdedec; color: #c0392b; border: 1px solid var(--wrong-color); display: block; }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            border-top: 2px solid #ecf0f1;
+            padding-top: 20px;
+        }
+
+        .btn {
+            background-color: var(--highlight-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn:hover:not(:disabled) { background-color: #1f618d; }
+        .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        .btn-retake { background-color: #e67e22; }
+        .btn-retake:hover { background-color: #d35400; }
+
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 98; display: none; }
+        #overlay.show { display: block; }
+        
+        .error-message { color: var(--wrong-color); font-weight: bold; text-align: center; display: block; width: 100%; }
+        .note { font-size: 0.9rem; color: #7f8c8d; text-align: center; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <h1>Prelim Examination | SET A | Questions 1-100</h1>
+    </div>
+
+    <div id="overlay" onclick="toggleSidebar()"></div>
+    <div id="sidebar">
+        <div class="sidebar-header" id="nav-header">Loading...</div>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+
+    <div id="main-content">
+        <div class="quiz-card" id="quizCard">
+            <div class="question-header">
+                <span id="q-num">Initializing...</span>
+                <span id="score-display" style="color: var(--highlight-color);">Score: 0</span>
+            </div>
+            
+            <p class="note">Note: This quiz contains all 100 problems parsed from the uploaded PRELIM EXAMINATION SET A SOLUTIONS document. Solution texts have been filtered out automatically.</p>
+
+            <div class="question-text" id="q-text">Parsing problem set (this may take a moment)...</div>
+            <div class="options-grid" id="opt-grid"></div>
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="controls" id="controls" style="display:none;">
+                <button class="btn" id="btn-prev" onclick="prevQ()">&#8592; Previous</button>
+                <button class="btn btn-retake" id="btn-retake" style="display:none;" onclick="retakeQuiz()">Retake Quiz</button>
+                <button class="btn" id="btn-next" onclick="nextQ()">Next &#8594;</button>
+            </div>
+        </div>
+    </div>
+
+    <script id="raw-data" type="text/plain">
+1. Which of the following thermodynamic law(s) provides the basis for measuring thermodynamic property of temperature
+A. Zeroth law*
+B. First law
+C. Second Law
+D. Third Law
+
+2. 7 mole of water vapor at $100^{\circ}C$ and 1 atm are compressed isobarically to form liquid at $100^{\circ}C$. The process is reversible, and the ideal gas laws apply. What is most nearly the initial volume of the vapor?
+A. 150 L
+B. 185 L
+C. 204 L
+D. 214 L*
+
+3. Heat normally flowing from a high temperature body to a low temperature body wherein it is impossible to convert heat without other effects.
+A. Nernst Law
+B. Kirchoff's Law
+C. Claussius Postulate
+D. Kelvin-Planck Postulate*
+
+4. 10 kmol of water vapor at $100^{\circ}C$ and 1 atm pressure are compressed isobarically to form liquid at $100^{\circ}C.$ The process is reversible, and the ideal gas laws apply. The heat of vaporization is 2257 kJ/kg. What is most nearly the heat required for condensation for the amount of water given?
+A. -406 MJ*
+B. -203 MJ
+C. 203 MJ
+D. 406 MJ
+
+5. The sum of the energies of all molecules in a system where energies appear in several complex form.
+A. Kinetic energy
+B. Frictional energy
+C. potential energy
+D. internal energy*
+
+6. 17 g of oxygen gas are compressed at a constant temperature of $30^{\circ}C$ to 8% of their original volume. What work is done on the system?
+A. 807 cal*
+B. 907 cal
+C. 1120 cal
+D. 1127 cal
+
+7. The temperature at which the vapor pressure is equal to the pressure exerted on the liquid.
+A. Absolute temperature
+B. Calorimetric temperature
+C. Boiling temperature*
+D. Thermal temperature
+
+8. Helium $(R=0.6403~kJ/kg-K)$ is compressed isothermally from 101.3 kPa and $30^{\circ}C$. The compression ratio is 4. What is most nearly the work done by the gas?
+A. $-270~kJ/kg^{*}$
+B. $-260~kJ/kg$
+C. $170~kJ/kg$
+D. $.180~kJ/kg$
+
+9. An ideal gas is compressed in a cylinder so well insulated that there is essentially no heat transfer. The temperature of the gas
+A. Decreases
+B. Increases*
+C. remains constant
+D. is zero
+
+10. Gas is enclosed in a cylinder with a weighted piston as the top boundary. The gas is heated and expands from a volume of 0.04 $m^{3}$ to 0.11 $m^{3}$ at a constant pressure of 200 kPa. Calculate the work done by the system?
+A. 8.0 kJ
+B. 10 kJ
+C. 12 kJ
+D. 14 kJ*
+
+11. The volume of fluid passing a cross-section of steam in unit time.
+A. Steady flow*
+B. Uniform flow
+C. Discharge flow
+D. Continuous flow
+
+12. A piston-cylinder system contains a gas that expands under a constant pressure of 57 kPa. If the piston is displaced 0.2 m during the process, and the piston diameter is 0.6 m, what is the work done by the gas on the piston?
+A. 2.4 kJ
+B. $3.2kJ^{*}$
+C. 3.4 kJ
+D. 4.8 kJ
+
+13. Two independent properties are required to completely fix the equilibrium state of a pure gaseous compound.
+A. Nernst postulate
+B. Wein's law
+C. two-state postulate
+D. state postulate*
+
+14. Gas is enclosed in a cylinder with a weighted piston as the top boundary. The gas is heated and expands from a volume of 0.04 $m^{3}$ to $0.10~m^{3}$. The pressure varies such that pV is constant, and the initial pressure is 325 kPa. What is most nearly the work done by the system?
+A. 6.8 kJ
+B. 7.3 kJ
+C. 10 kJ
+D. $12kJ^{*}$
+
+15. What is true about the polytropic exponent n for perfect gas undergoing an isobaric process?
+A. $n>0$
+B. $n<0$
+C. $n=\infty$
+D. $n=0^{*}$
+
+16. In an isentropic compression, $P_{1}=2.14~N/cm^{2}$, $P_{2}=4.28~N/cm^{2},$ $V_{1}=146~cm^{3},$ and the ratio of specific heats is 1.4. What is most nearly the value of the final volume?
+A. $18~cm^{3}$
+B. $21~cm^{3}$
+C. $89~cm^{3*}$
+D. $100~cm^{3}$
+
+17. The number of protons in the nucleus of an atom or the number of electrons in the orbit of an atom.
+A. Atomic volume
+B. Atomic Weight
+C. Atomic number*
+D. Atomic mass
+
+18. In an adiabatic, isentropic process, $P_{1}=4.28~N/cm^{2},$ $P_{2}=6.42$ $N/cm^{2}$ and $T_{1}=400~K.$ The ratio of specific heats is 1.4. What is most nearly the value of $T_{2}?$
+A. 420 Κ
+B. 430 K
+C. 440 K
+D. 450 K*
+
+19. Form of energy associated with the kinetic energy of the random motion of large number of molecules within a body.
+A. Internal energy
+B. Thermal energy*
+C. Kinetic Energy
+D. Heat
+
+20. Air undergoes an isentropic compression from $0.31~N/cm^{2}$ to 3.87 $N/cm^{2}$. If the initial temperature is $20^{\circ}C$ and the final temperature is 465.5 $.5^{\circ}C,$ what is most nearly the work done by the gas?
+A. $-320~kJ/kg^{*}$
+B. -220 kJ/kg
+C. $120~kJ/kg$
+D. 230 kJ/kg
+
+21. If the temperature is held constant and the pressure is increased beyond the saturation pressure, then, the working medium must be,
+A. Saturated vapor
+B. Saturated liquid
+C. compressed liquid*
+D. subcooled liquid
+
+22. Nitrogen gas is expanded isentropically. Its temperature changes from 635K to 288 K. Find the pressure ratio (P1/P2).
+A. 11
+B. 13
+C. $16^{*}$
+D. 22
+
+23. A closed system may refer to
+A. Control mass*
+B. Control energy
+C. Control volume
+D. Control temperature
+
+24. Nitrogen is expanded isentropically. Its temperature changes from $227^{\circ}C$ to $15^{\circ}C.$ The volumetric ratio is $V2/V1=6.22,$ and the specific gas content for nitrogen is 0.1017 kJ/kg-K. What is most nearly the work done by the gas?
+A. $80~kJ/kg$
+B. $-13~kJ/kg$
+C. 54 $kJ/kg^{*}$
+D. $79~kJ/kg$
+
+25. Work done per unit charge when charge is moved from one point to another.
+A. Equipotential surface
+B. Potential at a point
+C. electrostatic point
+D. potential difference*
+
+26. Helium is compressed isothermally from 14.7 psia and $68^{\circ}C$. the compression ratio is 4. What is most nearly the change in entropy of the gas, given that the specific gas constant is $R_{He}=0.6411$ $kJ/kg-K?$
+A. $-0.97~kJ/kg-K$
+B. $-0.89~kJ/kg-K^{*}$
+C. $.0.45~kJ/kg-K$
+D. 0.89 kJ/kg-K
+
+27. What is the process that has no heat transfer?
+A. Reversible isometric
+B. Isothermal
+C. Polytropic
+D. Adiabatic*
+
+28. For an ideal gas, what is most nearly the specific molar entropy change during an isothermal process in which the pressure changes from 210 kPa to 150 kPa?
+A. $2.0~K/mol-K$
+B. $2.4~J/mol-K$
+C. 2.8 J/mol-K*
+D. $3.1~J/mol-K$
+
+29. Which is NOT an intensive property of thermodynamics?
+A. Temperature
+B. Pressure
+C. Mass*
+D. Density
+
+30. In the $p-V$ diagram shown, heat addition occurs between points 1 and 2. Given that $c_{v}=0.245~kJ/kg-K,$ what is most nearly the entropy produced during this step? (Given T1=600K, T2=1534K)
+A. $-0.41~kJ/kg-K$
+B. $-0.23~kJ/kg-K$
+C. $0.23~kJ/kg-K^{*}$
+D. $0.41~kJ/kg-K$
+
+31. When a system deviates infinitesimally from equilibrium at every instant of its state, it is undergoing
+A. Isobaric process
+B. Quasi-static process*
+C. isometric process
+D. cyclic process
+
+32. 230 g of water are heated from $5^{\circ}C$ to $100^{\circ}C$ and vaporized at a constant pressure. The heat of vaporization of water at $100^{\circ}C$ is 539.2 $cal/g.$ The heat capacity at constant pressure, cp, is 1.0 $cal/g-K$. What is most nearly the total change in entropy?
+A. $250~cal/K$
+B. $300~cal/K$
+C. $350~cal/K$
+D. $400~cal/K^{*}$
+
+33. What is a process during which the specific volume remains constant?
+A. Isobaric process
+B. Isochoric process*
+C. Isothermal process
+D. Isovolumetric process
+
+34. What is most nearly the combined volume of 2.0 g of hydrogen gas and 6.0 g helium gas when confined at $20^{\circ}C$ and 5 atm?
+A. 10 L
+B. 12 L*
+C. 14 L
+D. 16 L
+
+35. Extensive properties per unit mass are called
+A. Specific properties*
+B. Intensive properties
+C. Relative properties
+D. Phase properties
+
+36. A piston-cylinder device contains 5 kg of air at 400 kPa and $30^{\circ}C$. During a quasi-equilibrium isothermal expansion process, 15 kJ of boundary work is done by the system, and 3 kJ of paddle-wheel work is done on the system. The heat transfer during this process is
+A. 12 kJ*
+B. 2.4 kJ
+C. 18 kJ
+D. 3.5 kJ
+
+37. A closed system may refer to
+A. Control mass*
+B. Control energy
+C. Control volume
+D. Control temperature
+
+38. Find the enthalpy a helium gas if its internal energy is $100~kJ/kg.$
+A. 144.42 $kJ/kg$
+B. $223.42~kJ/kg$
+C. $333.42~kJ/kg$
+D. $.166.7~kJ/kg^{*}$
+
+39. Open system usually encloses which of the following devices?
+A. Compressor
+B. Nozzle
+C. Turbine
+D. All of the above*
+
+40. What is the approximate value of temperature of water having enthalpy of $250~Btu/lbm?$
+A. $138.89^{\circ}C^{*}$
+B. $115.55^{\circ}C$
+C. $258.67^{\circ}C$
+D. $68.67^{\circ}C$
+
+41. Convert 740 R to K
+A. 390.33 K
+B. 395.33 K
+C. 410.93 K*
+D. 416.33 K
+
+42. Isentropic flow is
+A. Perfect gas flow
+B. Irreversible adiabatic flow
+C. ideal fluid flow
+D. reversible adiabatic flow*
+
+43. 100 g of water are mixed with 150 g of alcohol $(SG=0.79).$ What is the specific volume of the resulting mixture, assuming that the fluids mixed completely?
+A. $1.82\times10^{-3}m^{3}/kg$
+B. $1.11\times10^{-3}m^{3}/kg$
+C. $1.88\times10^{-3}m^{3}/kg$
+D. $.1.16\times10^{-3}m^{3}/kg^{*}$
+
+44. The following are all commonly quoted values of STP, except:
+A. 32°F and 14.7 psia
+B. 273.15 K and 101.325 kPa
+C. $0^{\circ}C$ and 760 mm Hg
+D. $0^{\circ}C$ and 29.92 in $Hg^{*}$
+
+45. A hiker carried an Aneroid barometer from the foot of Mount Banahaw to the camp of the NPA leader Ka Roger. On the foot of the mountain, the barometer reads 30.150 inches of Hg, and on the camp, which is nearly at the top of the mountain it reads 28.607 inches of Hg. Assume that the average air density (atmospheric) was 0.075 pcf, estimate the height of the mountain, in ft.
+A. 1455.54*
+B. 1545.54
+C. 1554.54
+D. 1445.54
+
+46. The pressure exerted in a vessel by a mixture of gases is equal to the sum of the pressures that each separate gas would exert if it alone occupied the whole volume of the vessel.
+A. Boyle's law
+B. Charles' law
+C. Dalton's law*
+D. Avogadro's law
+
+47. Air at 1 MPaa and $310^{\circ}C$ is expanded to 250 kPaa in accordance with the relation $pV^{1.25}=C.$ Determine the work done.
+A. $+162.11~kJ/kg^{*}$
+B. 162.11 kJ/kg
+C. $+126.11~kJ/kg$
+D. $-126.11~kJ/kg$
+
+48. The constant volume and constant pressure specific heats are identical for
+A. compressible substance
+B. ideal gas
+C. incompressible substance*
+D. none of these
+
+49. A container filled with helium is dropped 3000 m above the ground, find the change of temperature?
+A. $12.43^{\circ}C$
+B. $9.43^{\circ}C^{*}$
+C. $5.43^{\circ}C$
+D. $8.43^{\circ}C$
+
+50. A 3153-lb car is accelerated from 32 fps to 55 fps in 10 seconds. Determine the work done, in Btu.
+A. 125.92*
+B. 192.52
+C. 152.92
+D. 129.52
+
+51. Represents the temperature an ideal gas will attain when it is brought to rest adiabatically.
+A. Absolute zero
+B. Stagnation*
+C. Boiling
+D. Critical
+
+52. An adiabatic turbine steam generating plant receives steam at a pressure of 7.0 MPa and 550OC $(h=3531~kJ/kg)$ and exhausts at a condenser pressure of 20kPa $(h=2290~kJ/kg).$ The turbine inlet is 3 meters higher than the turbine exit, inlet steam velocity is $15m/s$ and the exit is $300m/s.$ Calculate the turbine work in kJ/kg.
+A. 1296.14
+B. 1196.24*
+C. 1619.42
+D. 1294.16
+
+53. The extension and compression of a helical spring is an example of what process?
+A. Isothermal cycle
+B. Thermodynamic process
+C. irreversible process
+D. reversible process*
+
+54. The temperature inside a furnace is $320^{\circ}C$ and temperature of the outside is $-10^{\circ}C.$ What is the temperature difference in R?
+A. 495
+B. 945
+C. 594*
+D. 596
+
+55. Convert a vacuum pressure of 110 mm of mercury into absolute pressure. Atmospheric pressure is 5.2 m of $H_{2}O.$
+A. 3.7 m of $H_{2}O^{*}$
+B. 45.6 m of H2O
+C. 9.01 m of $H_{2}O$
+D. 99.5 m of H2O
+
+56. Water temperature rise of 90.7°F in the water cooled condenser is equivalent in °C to
+A. $50.4^{\circ}C^{*}$
+B. 15.6 °C
+C. $10^{\circ}C$
+D. $-9.44^{\circ}C$
+
+57. Calculate the change in enthalpy as 1 kg of air is heated from 1000 K to 1500 K, assuming the air is an ideal gas at a constant pressure.
+A. 651 kJ
+B. 674 kJ*
+C. 697 kJ
+D. 610 kJ
+
+58. 20 g of Oxygen gas are compressed at a constant temperature of $30^{\circ}C$ to 5% of their original volume. What work is done on (negative work) the system?
+A. 820 cal
+B. 920 cal
+C. 950 cal
+D. 1120 cal*
+
+59. Robert Boyle observed during his experiments with a vacuum chamber that the pressure of gasses is inversely proportional to their
+A. Temperature
+B. Pressure
+C. Volume*
+D. none of these
+
+60. Which of the following occurs in a reversible polytropic process?
+A. Enthalpy remains constant
+B. some heat transfer occurs*
+C. Internal energy does not change
+D. entropy remains constant
+
+61. A vessel has two compartments 'A' and 'B' with pressure gauges mounted on each compartment. Pressure gauges of A and B read 400 kPa and 150 kPa respectively. Determine the absolute pressure existing in compartment A if the local barometer reads 720 mm Hg.
+A. 96 kPa
+B. 246 kPa
+C. 496 kPa*
+D. 197 kPa
+
+62. Work is _____ between the system and the surroundings.
+A. work interaction
+B. heat interaction
+C. energy interaction*
+D. none of these
+
+63. A cylindrical vessel of 1 m diameter and 4 m length has hydrogen gas at pressure of 100 kPa and $27^{\circ}C.$ Determine the amount of heat to be supplied so as to increase gas pressure to 125 kPa. For hydrogen take $Cp=14.307$ kJ/kg.K, $Cv=10.183~kJ/kg-K$.
+A. 375 kJ
+B. 254 kJ
+C. 4.124 kJ
+D. 194 kJ*
+
+64. In the absence of any work interactions between a system and its surroundings, the amount of net heat transfer is equal
+A. to the change in the total energy of a closed system*
+B. to heat and work
+C. energy interactions
+D. none of these
+
+65. Two cylindrical vessels of 2 m3 each are inter connected through a pipe with valve in-between. Initially valve is closed and one vessel has 20 kg air while 4 kg of air is there in second vessel. Assuming the system to be at 27°C temperature initially and perfectly insulated, determine final pressure in vessels after the valve is opened to attain equilibrium.
+A. 1033 kPa
+B. 517 kPa*
+C. 1.033 kPa
+D. 517 Pa
+
+66. A thermodynamic system that generally serves as a heat source of heat sink for anther system.
+A. Combustion chamber
+B. Heat reservoir*
+C. Heat engine
+D. Stirling engine
+
+67. 2 kg of Hydrogen and 3 kg of Helium are mixed together in an insulated container at atmospheric pressure and 100 K temperature. Determine the specific heat of final mixture if specific heat at constant pressure is 11.23 kJ/kg. K and 5.193 $kJ/kg$. K for H2 and He respectively.
+A. 6.61kJ/kg-K
+B. 7.61 kJ/kg-K*
+C. 8.61 kJ/kg-K
+D. 9.61 kJ/kg-K
+
+68. Which property of state is not an extensive state?
+A. Temperature*
+B. Volume
+C. number of molecules
+D. mass
+
+69. A gas at 65 kPa, $200^{\circ}C$ is heated in a closed, rigid vessel till it reaches to $400^{\circ}C$. Determine the amount of heat required for 0.5 kg of this gas if internal energy at $200^{\circ}C;$ and $400^{\circ}C;$ are 26.6 kJ/kg and 37.8 $kJ/kg$ respectively.
+A. 3.6 kJ
+B. 4.6 kJ
+C. 5.6 kJ*
+D. 6.6 kJ
+
+70. Which of the following thermodynamic relations is INCORRECT?
+A. $TdS=dU+pdV$
+B. $TdS=dH-VdP$
+C. $U=Q-W^{*}$
+D. $H=U+pV$
+
+71. In a winter season when outside temperature is -1°C, the inside of house is to be maintained at 25°C. Estimate the minimum power required to run the heat pump of maintaining the temperature. Assume heating load as 125 MJ/h.
+A. 1.02 kW
+B. 2.02 kW
+C. 3.02 kW*
+D. 4.02 kW
+
+72. The work done in a turbine is
+A. positive*
+B. zero
+C. negative
+D. none of these
+
+73. Ten kilograms per seconds of steam enter the turbine with an enthalpy of 3200 $kJ/kg$ and enter the condenser with an enthalpy of 2500 $kJ/kg$ in a Rankine cycle. If the turbine efficiency is 80% and the generator efficiency is 90%, determine the power plant output.
+A. 4320 kW
+B. 3213 kW
+C. 4056 kW
+D. 5040 kW*
+
+74. For a perfect gas the internal energy is the function of,
+A. Pressure only
+B. Temperature only*
+C. Volume only
+D. None of these
+
+75. An apple with an average mass of 0.15 kg and average specific heat of 3.65 $kJ/kg.^{\circ}C$ is cooled from $20^{\circ}C$ to $5^{\circ}C.$ The entropy change of the apple is
+A. -0.0288 kJ/K*
+B. -0.192 kJ/K
+C. -0.526 kJ/K
+D. 0 kJ/K
+
+76. An ideal gas mixture consists of 30% helium and 70% argon gases by mass. The mixture is now expanded isentropically in a turbine from $400^{\circ}C$ and 1.2 MPa to a pressure of 200 kPa. The mixture temperature at turbine exit is
+A. $195^{\circ}C$
+B. $56^{\circ}C^{*}$
+C. $112^{\circ}C$
+D. $130^{\circ}C$
+
+77. The air in an automobile tire with a volume of 0.53 ft3 is at 90°F and 20 psig. Determine the amount of air that must be added to raise the pressure to the recommended value of 30 psig. Assume the atmospheric pressure to be 14.6 psia and the temperature and the volume to remain constant.
+A. 0.026 lb*
+B. 0.046 lb
+C. 0.066 lb
+D. 0.086 lb
+
+78. 'Work' done upon the system and 'heat' added to the system shall have sign convention as shown respectively.
+A. (-) and (-)
+B. (-) and (+)*
+C. (+) and (+)
+D. (+) and (-)
+
+79. A rigid tank contains 2 kmol of N2 and 6 kmol of Co2 gases at 300 Deg K and 15 Mpa. Find the tank volume using ideal gas equation.
+A. 7.33 m3
+B. 5.33 m3
+C. 3.33 m3
+D. 1.33 m3*
+
+80. The characteristic gas constant R and universal gas constant R can be related through molecular weight M as under,
+A. $R=\overline{R}\times M$
+B. $\overline{R}=R\times M$
+C. $\overline{R}=R\div M^{*}$
+D. $R=\overline{R}+M$
+
+81. A heat source at 800 deg K losses 2000 of heat to a sink at 500 deg K. Determine the entropy generated during this process.
+A. 1.5 KJ/K*
+B. $2.5~KJ/K$
+C. -2.5 KJ/K
+D. 4 KJ/K
+
+82. Loci of the series of state change during heat addition to a gas shall be,
+A. Process
+B. Path*
+C. State change
+D. All of the above
+
+83. A dealer advertises that he has just received a shipment of electric resistance heaters for residential buildings that have an efficiency of 100 percent. Assuming an indoor temperature of 21 deg C and outdoor temperature of 10 deg C, determine the second law efficiency of these heaters.
+A. 8.74%
+B. 6.74%
+C. 3.74%*
+D. 4.74%
+
+84. A process which gives the same states/conditions after the system undergoes a series of processes:
+A. Reversible process
+B. Irreversible process
+C. cyclic process*
+D. Quasit-static process
+
+85. Find the depth in furlong of the ocean, $SG=1.03,$ if the pressure at the sea bed is 2,032.56 kPag.
+A. 1*
+B. 2
+C. 3
+D. 4
+
+86. A piston-cylinder device contains an ideal gas. The gas undergoes two successive cooling processes by rejecting heat to the surroundings. First the gas is cooled at constant pressure until $T2=^{3}/_{4}T1$ Then the piston is held stationary while the gas is further cooled to $T3=\frac{1}{2}T1,$ where all temperatures are in K. (Find ratio of V3 to V1)
+A. 0.25
+B. 0.67
+C. 0.50
+D. 0.75*
+
+87. For fluid flow, the enthalpy is the sum of internal energy and
+A. Entropy
+B. Flow work*
+C. Non-flow work
+D. pressure and volume
+
+88. Liquid water enters an adiabatic piping system at $15^{\circ}C$ at a rate of $8~kg/s.$ If the water temperature rises by $0.2^{\circ}C$ during flow due to friction, the rate of entropy generation in the pipe is
+A. 23 W/K*
+B. 55 W/K
+C. 68 W/K
+D. 220 W/K
+
+89. A rigid tank contains 5 kg of an ideal gas at 4 atm and 40 deg C. Now a valve is opened, and half of mass of the gas is allowed to escape. If the final pressure in the tank is 1.5 atm, the final temperature in the tank is:
+A. -38 deg C*
+B. -30 deg C
+C. 40 deg C
+D. 53 deg C
+
+90. The pressure of an automobile tire is measured to be 200 kpa(gage) before the trip and 220 kpa(gage) after the trip at a location where the atmospheric pressure is 90 kpa. If the temperature of the air in the tire before the trip is 25 deg C, the air temperature after the trip is:
+A. 45.6 deg C*
+B. 54.8 deg C
+C. 27.5 deg C
+D. 26.7 deg C
+
+91. 3 kg of liquid water initially at $12^{\circ}C$ is to be heated to $95^{\circ}C$ in a teapot equipped with a 1200 W electric heating element inside. The specific heat of water can be taken to be $4.18~kJ/kg.^{\circ}C$ and the heat loss from the water during heating can be neglected. The time it takes to heat the water to the desired temperature is
+A. 4.8 min
+B. 6.7 min
+C. 14.5 min*
+D. 9.0 min
+
+92. A glass of water with a mass of 0.45 kg at $20^{\circ}C$ is to be cooled to $0^{\circ}C$ by dropping ice cubes at $0^{\circ}C$ into it. The latent heat of fusion of ice is 334 kJ/kg, and the specific heat of water is $4.18~kJ/kg.^{\circ}C.$ The amount of ice that needs to be added is
+A. 56g
+B. 124 g
+C. 113 g*
+D. 224 g
+
+93. Which of the following gases can be used to measure the lowest temperature?
+A. Nitrogen
+B. Helium*
+C. Oxygen
+D. Hydrogen
+
+94. Compute the mass of a 2 m3 propane at 280 kPa and $40^{\circ}C.$
+A. 6.47 kg
+B. 5.1 kg
+C. 10.20 kg
+D. 9.47 kg*
+
+95. Which of the thermodynamic property best describes the molecular activity of a substance?
+A. Enthalpy
+B. Entropy
+C. internal energy*
+D. external energy
+
+96. Find the work possess for a Helium gas at $20^{\circ}C$
+A. 609 kJ/kg*
+B. 168 kJ/kg
+C. 229 kJ/kg
+D. $339~kJ/kg$
+
+97. At a given temperature and pressure all molecules of gas occupy the same volume. This is called
+A. Charle's law
+B. Boyle's law
+C. Avagadro's law*
+D. Regnault's law
+
+98. Find the pressure at the 100 fathom depth of water in kpag.
+A. 1793.96 kPag*
+B. 1993.93 kPag
+C. 1893.96 kPag
+D. 1693.96 kPag
+
+99. Specific heats at constant pressure (Cp) and at constant volume (Cv) can be related by
+A. $Cp=CV$
+B. $Cp<Cv$
+C. $Cp>Cv^{*}$
+D. $Cp+Cv=0$
+
+100. Helium gas is compressed in an adiabatic compressor from an initial state of 14 psia and 50°F to a final temperature of 320°F in a reversible manner. Determine the exit pressure of Helium.
+A. 38.5 psia
+B. 42.5 psia
+C. 40.5 psia*
+D. 44.5 psia
+    </script>
+
+    <script>
+        const rawText = document.getElementById('raw-data').textContent.trim();
+        const quizData = [];
+        let totalScore = 0;
+        let currentIdx = 0;
+
+        function initApp() {
+            const lines = rawText.split('\n');
+            let currentQuestion = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (line === '') continue;
+
+                // Match question start
+                const qMatch = line.match(/^(\d{1,3})\.\s+(.*)/);
+                
+                if (qMatch) {
+                    if (currentQuestion && currentQuestion.options.length > 0) {
+                        quizData.push(currentQuestion);
+                    }
+                    currentQuestion = {
+                        num: parseInt(qMatch[1]),
+                        qText: qMatch[2],
+                        options: [],
+                        ans: 'A', // default
+                        userAnswer: null
+                    };
+                } else if (currentQuestion) {
+                    let foundOption = false;
+                    const optRegex = /(?:^|\s)([A-D])\.\s*(.*?)(?=(?:\s+[A-D]\.\s*)|$)/g;
+                    let match;
+                    while ((match = optRegex.exec(line)) !== null) {
+                        foundOption = true;
+                        let optLetter = match[1].toUpperCase();
+                        let optText = match[2].trim();
+                        
+                        if (optText.endsWith('*')) {
+                            currentQuestion.ans = optLetter;
+                            optText = optText.replace(/\*+$/, '').trim();
+                        }
+                        
+                        if (!currentQuestion.options.find(o => o.letter === optLetter)) {
+                            currentQuestion.options.push({ letter: optLetter, text: optText });
+                        }
+                    }
+
+                    if (!foundOption) {
+                        if (currentQuestion.options.length === 0) {
+                            currentQuestion.qText += " " + line;
+                        } else {
+                            let lastOpt = currentQuestion.options[currentQuestion.options.length - 1];
+                            lastOpt.text += " " + line;
+                            if (lastOpt.text.endsWith('*')) {
+                                currentQuestion.ans = lastOpt.letter;
+                                lastOpt.text = lastOpt.text.replace(/\*+$/, '').trim();
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (currentQuestion && currentQuestion.options.length > 0) {
+                quizData.push(currentQuestion);
+            }
+
+            quizData.sort((a, b) => a.num - b.num);
+
+            if (quizData.length === 0) {
+                document.getElementById('q-text').innerHTML = "<span class='error-message'>Parse Error: Could not extract questions from the provided file.</span>";
+                return;
+            }
+            
+            document.getElementById('nav-header').innerText = `1 to 100 Navigator`;
+            document.getElementById('controls').style.display = 'flex';
+            buildNav();
+            renderQuestion();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+
+        function buildNav() {
+            const grid = document.getElementById('navGrid');
+            grid.innerHTML = '';
+            quizData.forEach((q, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.id = `nav-${i}`;
+                btn.innerText = q.num;
+                btn.onclick = () => { 
+                    currentIdx = i; 
+                    renderQuestion(); 
+                    if(window.innerWidth <= 768) toggleSidebar(); 
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateNavStyles() {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${currentIdx}`).classList.add('active');
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentIdx];
+            document.getElementById('q-num').innerText = `Question ${q.num} (Problem ${currentIdx + 1} of ${quizData.length})`;
+            document.getElementById('q-text').innerText = q.qText;
+            
+            const grid = document.getElementById('opt-grid');
+            grid.innerHTML = '';
+            
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback';
+            feedback.innerText = '';
+            feedback.style.display = 'none';
+
+            q.options.forEach((opt) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                
+                let textToDisplay = opt.text.replace(/\*$/, '').trim();
+
+                btn.innerHTML = `<span class="opt-letter">${opt.letter}.</span> ${textToDisplay}`;
+                
+                if (q.userAnswer) {
+                    btn.classList.add('disabled');
+                    if (opt.letter === q.ans) {
+                        btn.classList.add('actual-correct');
+                    }
+                    if (opt.letter === q.userAnswer && q.userAnswer !== q.ans) {
+                        btn.classList.add('selected-wrong');
+                    }
+                } else {
+                    btn.onclick = () => handleAnswer(opt.letter);
+                }
+                grid.appendChild(btn);
+            });
+
+            if (q.userAnswer) {
+                feedback.style.display = 'block';
+                if (q.userAnswer === q.ans) {
+                    feedback.className = 'feedback success';
+                    feedback.innerText = 'Correct!';
+                } else {
+                    feedback.className = 'feedback error';
+                    feedback.innerText = `Incorrect! The correct answer is ${q.ans}.`;
+                }
+            }
+
+            // Update Controls
+            document.getElementById('btn-prev').disabled = currentIdx === 0;
+            
+            const btnNext = document.getElementById('btn-next');
+            const btnRetake = document.getElementById('btn-retake');
+
+            if (currentIdx === quizData.length - 1) {
+                btnNext.style.display = 'none';
+                btnRetake.style.display = 'inline-block';
+            } else {
+                btnNext.style.display = 'inline-block';
+                btnRetake.style.display = 'none';
+            }
+
+            updateNavStyles();
+            
+            if (window.MathJax) {
+                MathJax.typesetPromise([document.getElementById('quizCard')]);
+            }
+        }
+
+        function handleAnswer(letter) {
+            const q = quizData[currentIdx];
+            q.userAnswer = letter;
+            
+            const navBtn = document.getElementById(`nav-${currentIdx}`);
+            if (letter === q.ans) {
+                totalScore++;
+                navBtn.classList.add('correct');
+            } else {
+                navBtn.classList.add('wrong');
+            }
+            
+            document.getElementById('score-display').innerText = `Score: ${totalScore}`;
+            renderQuestion();
+        }
+
+        function nextQ() { if (currentIdx < quizData.length - 1) { currentIdx++; renderQuestion(); } }
+        function prevQ() { if (currentIdx > 0) { currentIdx--; renderQuestion(); } }
+
+        function retakeQuiz() {
+            quizData.forEach(q => { q.userAnswer = null; });
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('correct');
+                b.classList.remove('wrong');
+            });
+            totalScore = 0;
+            currentIdx = 0;
+            document.getElementById('score-display').innerText = `Score: 0`;
+            renderQuestion();
+            document.getElementById('main-content').scrollTo(0,0);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
