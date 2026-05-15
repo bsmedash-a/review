@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermodynamics 1 Daily Exam 2 | SET D</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --main-color: #ffffff;
+            --text-color: #2c3e50;
+            --accent-color: #1a252f;
+            --highlight-color: #e67e22;
+            --correct-color: #27ae60;
+            --wrong-color: #e74c3c;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 15px 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 4px solid var(--highlight-color);
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: white;
+            margin-right: 20px;
+            transition: color 0.2s;
+        }
+
+        .hamburger:hover { color: var(--highlight-color); }
+
+        .top-bar h1 {
+            margin: 0;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 320px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            position: fixed;
+            height: calc(100% - 60px);
+            top: 60px;
+            z-index: 99;
+            transform: translateX(-100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+        }
+
+        #sidebar.open { transform: translateX(0); }
+
+        .sidebar-header {
+            padding: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: #1a252f;
+            text-align: center;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .nav-grid {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .nav-btn {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 10px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover { background-color: #95a5a6; }
+        .nav-btn.active { background-color: var(--highlight-color); box-shadow: inset 0 0 0 2px white; }
+        .nav-btn.correct { background-color: var(--correct-color); color: white; }
+        .nav-btn.wrong { background-color: var(--wrong-color); color: white; }
+
+        /* Main Content */
+        #main-content {
+            flex: 1;
+            margin-top: 60px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .quiz-card {
+            background-color: var(--main-color);
+            width: 100%;
+            max-width: 900px;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            height: fit-content;
+            margin-bottom: 40px;
+        }
+
+        .question-header {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            white-space: pre-wrap;
+        }
+
+        /* 2-Column Layout for Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+
+        .option {
+            background-color: #f8f9fa;
+            border: 2px solid #bdc3c7;
+            padding: 16px 20px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            color: var(--text-color);
+        }
+
+        .option:hover:not(.disabled) {
+            background-color: #fbeee6;
+            border-color: var(--highlight-color);
+        }
+
+        .option.actual-correct {
+            background-color: #e8f8f5;
+            border-color: var(--correct-color);
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .option.selected-wrong {
+            background-color: #fdedec;
+            border-color: var(--wrong-color);
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .option.disabled { cursor: default; }
+
+        .opt-letter {
+            font-weight: bold;
+            margin-right: 15px;
+            color: var(--highlight-color);
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .feedback.success { background-color: #e8f8f5; color: #27ae60; border: 1px solid var(--correct-color); display: block; }
+        .feedback.error { background-color: #fdedec; color: #c0392b; border: 1px solid var(--wrong-color); display: block; }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            border-top: 2px solid #ecf0f1;
+            padding-top: 20px;
+        }
+
+        .btn {
+            background-color: var(--highlight-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn:hover:not(:disabled) { background-color: #d35400; }
+        .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        .btn-retake { background-color: #3498db; }
+        .btn-retake:hover { background-color: #2980b9; }
+
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 98; display: none; }
+        #overlay.show { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <h1>Thermodynamics 1 Daily Exam 2 | SET D</h1>
+    </div>
+
+    <div id="overlay" onclick="toggleSidebar()"></div>
+    <div id="sidebar">
+        <div class="sidebar-header" id="nav-header">Loading...</div>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+
+    <div id="main-content">
+        <div class="quiz-card" id="quizCard">
+            <div class="question-header">
+                <span id="q-num">Initializing...</span>
+                <span id="score-display" style="color: var(--highlight-color);">Score: 0</span>
+            </div>
+            
+            <div class="question-text" id="q-text">Loading problem set...</div>
+            <div class="options-grid" id="opt-grid"></div>
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="controls" id="controls" style="display:none;">
+                <button class="btn" id="btn-prev" onclick="prevQ()">&#8592; Previous</button>
+                <button class="btn btn-retake" id="btn-retake" style="display:none;" onclick="retakeQuiz()">Retake Quiz</button>
+                <button class="btn" id="btn-next" onclick="nextQ()">Next &#8594;</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rawQuestions = [
+            {
+                num: 1,
+                qText: "Steam at 1000 lbf/ft2 pressure and 300R has specific volume of 6.5 ft3/lbm and a specific enthalpy of 9800 ft-lbf/lbm. Find the internal energy per pound mass of the steam.",
+                options: [
+                    { letter: "A", text: "3.21 Btu/lbm" },
+                    { letter: "B", text: "4.24 Btu/lbm" },
+                    { letter: "C", text: "6.94 Btu/lbm" },
+                    { letter: "D", text: "8.87 Btu/lbm" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 2,
+                qText: "What is the thermodynamic temperature scale in the SI system?",
+                options: [
+                    { letter: "A", text: "Kelvin scale" },
+                    { letter: "B", text: "Fahrenheit scale" },
+                    { letter: "C", text: "Celsius scale" },
+                    { letter: "D", text: "Rankine scale" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 3,
+                qText: "Gas is enclosed in a cylinder with a weighted piston as the top boundary. The gas is heated and expands from a volume of 1.41 ft3 to 3.53 ft3 at a constant pressure of 29 psi. Calculate the work done by the system.",
+                options: [
+                    { letter: "A", text: "7.6 Btu" },
+                    { letter: "B", text: "9.5 Btu" },
+                    { letter: "C", text: "11.4 Btu" },
+                    { letter: "D", text: "13.3 Btu" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 4,
+                qText: "What is considered as the actual pressure at a given position and is measured relative to absolute vacuum?",
+                options: [
+                    { letter: "A", text: "Gage pressure" },
+                    { letter: "B", text: "Atmospheric pressure" },
+                    { letter: "C", text: "Absolute pressure" },
+                    { letter: "D", text: "Vacuum pressure" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 5,
+                qText: "During a heating process, the temperature of an object rises by 20°C. This temperature rise is equivalent to a temperature rise of",
+                options: [
+                    { letter: "A", text: "20ºF" },
+                    { letter: "B", text: "52ºF" },
+                    { letter: "C", text: "36 K" },
+                    { letter: "D", text: "36 R" }
+                ],
+                ans: "D"
+            },
+            {
+                num: 6,
+                qText: "Which is NOT an extensive property of thermodynamics?",
+                options: [
+                    { letter: "A", text: "Density" },
+                    { letter: "B", text: "Volume" },
+                    { letter: "C", text: "Mass" },
+                    { letter: "D", text: "Energy" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 7,
+                qText: "Consider a 2-m deep swimming pool. The pressure difference between the top and bottom of the pool is",
+                options: [
+                    { letter: "A", text: "12.0 kPa" },
+                    { letter: "B", text: "19.6 kPa" },
+                    { letter: "C", text: "38.1 kPa" },
+                    { letter: "D", text: "50.8 kPa" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 8,
+                qText: "What is a process with identical end states called?",
+                options: [
+                    { letter: "A", text: "Cycle" },
+                    { letter: "B", text: "Phase" },
+                    { letter: "C", text: "Path" },
+                    { letter: "D", text: "Either path or phase" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 9,
+                qText: "The pressure of an automobile tire is measured to be 190 kPag before a trip and 215 kPag after the trip at a location where the atmospheric pressure is 95 kPa. If the temperature of air in the tire before the trip is 25°C, the air temperature after the trip is",
+                options: [
+                    { letter: "A", text: "51.1 ºC" },
+                    { letter: "B", text: "64.2 ºC" },
+                    { letter: "C", text: "27.2 ºC" },
+                    { letter: "D", text: "28.3 ºC" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 10,
+                qText: "What is a process during which the specific volume remains constant?",
+                options: [
+                    { letter: "A", text: "Isobaric process" },
+                    { letter: "B", text: "Isochoric process" },
+                    { letter: "C", text: "Isothermal process" },
+                    { letter: "D", text: "Isovolumetric process" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 11,
+                qText: "A rigid tank contains 6 kg of an ideal gas at 3 atm and 40°C. Now a valve is opened, and half of mass of the gas is allowed to escape. If the final pressure in the tank is 2.2 atm, the final temperature in the tank is",
+                options: [
+                    { letter: "A", text: "186 ºC" },
+                    { letter: "B", text: "59 ºC" },
+                    { letter: "C", text: "-43 ºC" },
+                    { letter: "D", text: "20 ºC" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 12,
+                qText: "What states that for a confined fluid, the pressure at a point has the same magnitude in all directions?",
+                options: [
+                    { letter: "A", text: "Avogadro’s Law" },
+                    { letter: "B", text: "Pascal’s Law" },
+                    { letter: "C", text: "Amagat Law" },
+                    { letter: "D", text: "Bernoulli’s Theorem" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 13,
+                qText: "An apple with an average mass of 0.18 kg and average specific heat of 3.65 kJ/kg.°C is cooled from 22°C to 5°C. The amount of heat transferred from the apple is",
+                options: [
+                    { letter: "A", text: "0.85 kJ" },
+                    { letter: "B", text: "62.1 kJ" },
+                    { letter: "C", text: "17.7 kJ" },
+                    { letter: "D", text: "11.2 kJ" }
+                ],
+                ans: "D"
+            },
+            {
+                num: 14,
+                qText: "What is the latent heat of fusion of water at 1 atm?",
+                options: [
+                    { letter: "A", text: "331.1 kJ/kg" },
+                    { letter: "B", text: "333.7 kJ/kg" },
+                    { letter: "C", text: "332.6 kJ/kg" },
+                    { letter: "D", text: "330.7 kJ/kg" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 15,
+                qText: "A vapor that is not about to condense is called _____ vapor.",
+                options: [
+                    { letter: "A", text: "Saturated" },
+                    { letter: "B", text: "Superheated" },
+                    { letter: "C", text: "Compressed or subcooled" },
+                    { letter: "D", text: "Unsaturated" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 16,
+                qText: "If the ºF scale is twice the ºC scale, what is the reading in the Fahrenheit scale?",
+                options: [
+                    { letter: "A", text: "160" },
+                    { letter: "B", text: "320" },
+                    { letter: "C", text: "140" },
+                    { letter: "D", text: "280" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 17,
+                qText: "What refers to the series of state through which a system passes during a process?",
+                options: [
+                    { letter: "A", text: "Path" },
+                    { letter: "B", text: "Cycle" },
+                    { letter: "C", text: "Phase" },
+                    { letter: "D", text: "Direction" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 18,
+                qText: "3 kg of liquid water initially at 12°C is to be heated to 95°C in a teapot equipped with a 1200 W electric heating element inside. The specific heat of water can be taken to be 4.18 kJ/kg.°C, and the heat loss from the water during heating can be neglected. The time it takes to heat the water to the desired temperature is",
+                options: [
+                    { letter: "A", text: "4.8 min" },
+                    { letter: "B", text: "14.5 min" },
+                    { letter: "C", text: "6.7 min" },
+                    { letter: "D", text: "9.0 min" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 19,
+                qText: "A device that violates either the first law of thermodynamics or the second law of thermodynamics is known as _____.",
+                options: [
+                    { letter: "A", text: "Ambiguous machine" },
+                    { letter: "B", text: "Perpetual-motion machine" },
+                    { letter: "C", text: "Universal machine" },
+                    { letter: "D", text: "Unique machine" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 20,
+                qText: "An air bubble rises from the bottom of a well where the temperature is 25ºC, to the surface where the temperature is 27ºC. Find the percent increase in the volume of the bubble if the depth of the well is 5 m. Atmospheric pressure is 88.1 kPa.",
+                options: [
+                    { letter: "A", text: "49.3" },
+                    { letter: "B", text: "56.7" },
+                    { letter: "C", text: "41.3" },
+                    { letter: "D", text: "38.6" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 21,
+                qText: "Open system usually encloses which of the following devices?",
+                options: [
+                    { letter: "A", text: "Compressor" },
+                    { letter: "B", text: "Nozzle" },
+                    { letter: "C", text: "Turbine" },
+                    { letter: "D", text: "All of the above" }
+                ],
+                ans: "D"
+            },
+            {
+                num: 22,
+                qText: "A large mining company was provided with a 3000 cc of compressed air tank. Air pressure in the tank drops from 700 kPa to 180 kPa while the temperature remains unchanged at 28 ºC. What percentage has the mass of air in the tank been unreduced?",
+                options: [
+                    { letter: "A", text: "72.4%" },
+                    { letter: "B", text: "74.3%" },
+                    { letter: "C", text: "76.8%" },
+                    { letter: "D", text: "78.6%" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 23,
+                qText: "Any characteristic of a thermodynamics system is called a _____.",
+                options: [
+                    { letter: "A", text: "Property" },
+                    { letter: "B", text: "Phase" },
+                    { letter: "C", text: "Process" },
+                    { letter: "D", text: "Cycle" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 24,
+                qText: "One cubic meter of a perfect gas at a constant pressure of 1 bar and temperature of 17ºC are compressed to a volume of 0.50m3 and the final pressure is 6 bar. Calculate the final temperature.",
+                options: [
+                    { letter: "A", text: "560 ºC" },
+                    { letter: "B", text: "597 ºC" },
+                    { letter: "C", text: "860 ºC" },
+                    { letter: "D", text: "870 ºC" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 25,
+                qText: "What is a process in which the system remains infinitesimally closed to an equilibrium state at all times?",
+                options: [
+                    { letter: "A", text: "Path equilibrium process" },
+                    { letter: "B", text: "Phase equilibrium process" },
+                    { letter: "C", text: "Cycle equilibrium process" },
+                    { letter: "D", text: "Quasi-state process" }
+                ],
+                ans: "D"
+            },
+            {
+                num: 26,
+                qText: "If 10 lbm of water evaporated at atmospheric pressure until a volume of 288.5 ft3 is occupied, how much work is done?",
+                options: [
+                    { letter: "A", text: "610,358 ft-lbf" },
+                    { letter: "B", text: "0" },
+                    { letter: "C", text: "-610,358 ft-lbf" },
+                    { letter: "D", text: "550,000 ft-lbf" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 27,
+                qText: "The thermodynamic properties that are dependent on the size or extent of the system is called _____.",
+                options: [
+                    { letter: "A", text: "Extensive property" },
+                    { letter: "B", text: "Open property" },
+                    { letter: "C", text: "Intensive property" },
+                    { letter: "D", text: "Closed property" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 28,
+                qText: "An oxygen cylinder of volume 2.3 ft3 has a pressure of 2200 psig and is at 70 ºF. Determine the mass of oxygen in the cylinder.",
+                options: [
+                    { letter: "A", text: "26.66 lbm" },
+                    { letter: "B", text: "26.86 lbm" },
+                    { letter: "C", text: "28.66 lbm" },
+                    { letter: "D", text: "28.88 lbm" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 29,
+                qText: "What is a process during which the pressure remains constant?",
+                options: [
+                    { letter: "A", text: "Isobaric process" },
+                    { letter: "B", text: "Isochoric process" },
+                    { letter: "C", text: "Isothermal process" },
+                    { letter: "D", text: "Isometric process" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 30,
+                qText: "A closed vessel contains air at a pressure of 160 kPag and temperature of 30 ºC. The air is heated at constant volume to 60 ºC with atmospheric pressure of 758 mm Hg. What is the final gage pressure?",
+                options: [
+                    { letter: "A", text: "167 kPag" },
+                    { letter: "B", text: "172 kPag" },
+                    { letter: "C", text: "174 kPag" },
+                    { letter: "D", text: "186 kPag" }
+                ],
+                ans: "D"
+            }
+        ];
+
+        let quizData = [];
+        let totalScore = 0;
+        let currentIdx = 0;
+
+        function initApp() {
+            quizData = [...rawQuestions];
+            
+            document.getElementById('nav-header').innerText = `Problems Navigator`;
+            document.getElementById('controls').style.display = 'flex';
+            buildNav();
+            renderQuestion();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+
+        function buildNav() {
+            const grid = document.getElementById('navGrid');
+            grid.innerHTML = '';
+            quizData.forEach((q, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.id = `nav-${i}`;
+                btn.innerText = q.num;
+                btn.onclick = () => { 
+                    currentIdx = i; 
+                    renderQuestion(); 
+                    if(window.innerWidth <= 768) toggleSidebar(); 
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateNavStyles() {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${currentIdx}`).classList.add('active');
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentIdx];
+            document.getElementById('q-num').innerText = `Question ${q.num} of ${quizData.length}`;
+            document.getElementById('q-text').innerText = q.qText;
+            
+            const grid = document.getElementById('opt-grid');
+            grid.innerHTML = '';
+            
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback';
+            feedback.innerText = '';
+            feedback.style.display = 'none';
+
+            q.options.forEach((opt) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                btn.innerHTML = `<span class="opt-letter">${opt.letter}.</span> ${opt.text}`;
+                
+                if (q.userAnswer) {
+                    btn.classList.add('disabled');
+                    if (opt.letter === q.ans) {
+                        btn.classList.add('actual-correct');
+                    }
+                    if (opt.letter === q.userAnswer && q.userAnswer !== q.ans) {
+                        btn.classList.add('selected-wrong');
+                    }
+                } else {
+                    btn.onclick = () => handleAnswer(opt.letter);
+                }
+                grid.appendChild(btn);
+            });
+
+            if (q.userAnswer) {
+                feedback.style.display = 'block';
+                if (q.userAnswer === q.ans) {
+                    feedback.className = 'feedback success';
+                    feedback.innerText = 'Correct!';
+                } else {
+                    feedback.className = 'feedback error';
+                    feedback.innerText = `Incorrect! The correct answer is ${q.ans}.`;
+                }
+            }
+
+            // Update Controls
+            document.getElementById('btn-prev').disabled = currentIdx === 0;
+            
+            const btnNext = document.getElementById('btn-next');
+            const btnRetake = document.getElementById('btn-retake');
+
+            if (currentIdx === quizData.length - 1) {
+                btnNext.style.display = 'none';
+                btnRetake.style.display = 'inline-block';
+            } else {
+                btnNext.style.display = 'inline-block';
+                btnRetake.style.display = 'none';
+            }
+
+            updateNavStyles();
+            
+            if (window.MathJax) {
+                MathJax.typesetPromise([document.getElementById('quizCard')]);
+            }
+        }
+
+        function handleAnswer(letter) {
+            const q = quizData[currentIdx];
+            q.userAnswer = letter;
+            
+            const navBtn = document.getElementById(`nav-${currentIdx}`);
+            if (letter === q.ans) {
+                totalScore++;
+                navBtn.classList.add('correct');
+            } else {
+                navBtn.classList.add('wrong');
+            }
+            
+            document.getElementById('score-display').innerText = `Score: ${totalScore}`;
+            renderQuestion();
+        }
+
+        function nextQ() { if (currentIdx < quizData.length - 1) { currentIdx++; renderQuestion(); } }
+        function prevQ() { if (currentIdx > 0) { currentIdx--; renderQuestion(); } }
+
+        function retakeQuiz() {
+            quizData.forEach(q => { q.userAnswer = null; });
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('correct');
+                b.classList.remove('wrong');
+            });
+            totalScore = 0;
+            currentIdx = 0;
+            document.getElementById('score-display').innerText = `Score: 0`;
+            renderQuestion();
+            document.getElementById('main-content').scrollTo(0,0);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
