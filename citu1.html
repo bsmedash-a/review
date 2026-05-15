@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermodynamics 1 Daily Exam 1 | Set D</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --main-color: #ffffff;
+            --text-color: #2c3e50;
+            --accent-color: #1a252f;
+            --highlight-color: #e67e22;
+            --correct-color: #27ae60;
+            --wrong-color: #e74c3c;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 15px 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 4px solid var(--highlight-color);
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: white;
+            margin-right: 20px;
+            transition: color 0.2s;
+        }
+
+        .hamburger:hover { color: var(--highlight-color); }
+
+        .top-bar h1 {
+            margin: 0;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 320px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            position: fixed;
+            height: calc(100% - 60px);
+            top: 60px;
+            z-index: 99;
+            transform: translateX(-100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+        }
+
+        #sidebar.open { transform: translateX(0); }
+
+        .sidebar-header {
+            padding: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: #1a252f;
+            text-align: center;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .nav-grid {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .nav-btn {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 10px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover { background-color: #95a5a6; }
+        .nav-btn.active { background-color: var(--highlight-color); box-shadow: inset 0 0 0 2px white; }
+        .nav-btn.correct { background-color: var(--correct-color); color: white; }
+        .nav-btn.wrong { background-color: var(--wrong-color); color: white; }
+
+        /* Main Content */
+        #main-content {
+            flex: 1;
+            margin-top: 60px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .quiz-card {
+            background-color: var(--main-color);
+            width: 100%;
+            max-width: 900px;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            height: fit-content;
+            margin-bottom: 40px;
+        }
+
+        .question-header {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            white-space: pre-wrap;
+        }
+
+        /* 2-Column Layout for Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+
+        .option {
+            background-color: #f8f9fa;
+            border: 2px solid #bdc3c7;
+            padding: 16px 20px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            color: var(--text-color);
+        }
+
+        .option:hover:not(.disabled) {
+            background-color: #fbeee6;
+            border-color: var(--highlight-color);
+        }
+
+        .option.actual-correct {
+            background-color: #e8f8f5;
+            border-color: var(--correct-color);
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .option.selected-wrong {
+            background-color: #fdedec;
+            border-color: var(--wrong-color);
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .option.disabled { cursor: default; }
+
+        .opt-letter {
+            font-weight: bold;
+            margin-right: 15px;
+            color: var(--highlight-color);
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .feedback.success { background-color: #e8f8f5; color: #27ae60; border: 1px solid var(--correct-color); display: block; }
+        .feedback.error { background-color: #fdedec; color: #c0392b; border: 1px solid var(--wrong-color); display: block; }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            border-top: 2px solid #ecf0f1;
+            padding-top: 20px;
+        }
+
+        .btn {
+            background-color: var(--highlight-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn:hover:not(:disabled) { background-color: #d35400; }
+        .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        .btn-retake { background-color: #3498db; }
+        .btn-retake:hover { background-color: #2980b9; }
+
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 98; display: none; }
+        #overlay.show { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <h1>Thermodynamics 1 Daily Exam 1 | SET D</h1>
+    </div>
+
+    <div id="overlay" onclick="toggleSidebar()"></div>
+    <div id="sidebar">
+        <div class="sidebar-header" id="nav-header">Loading...</div>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+
+    <div id="main-content">
+        <div class="quiz-card" id="quizCard">
+            <div class="question-header">
+                <span id="q-num">Initializing...</span>
+                <span id="score-display" style="color: var(--highlight-color);">Score: 0</span>
+            </div>
+            
+            <div class="question-text" id="q-text">Loading problem set...</div>
+            <div class="options-grid" id="opt-grid"></div>
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="controls" id="controls" style="display:none;">
+                <button class="btn" id="btn-prev" onclick="prevQ()">&#8592; Previous</button>
+                <button class="btn btn-retake" id="btn-retake" style="display:none;" onclick="retakeQuiz()">Retake Quiz</button>
+                <button class="btn" id="btn-next" onclick="nextQ()">Next &#8594;</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Exact 30 questions extracted directly from the provided document
+        const rawQuestions = [
+            {
+                num: 1,
+                qText: "If two objects are in thermal equilibrium with each other:",
+                options: [
+                    { letter: "A", text: "they cannot be moving" },
+                    { letter: "B", text: "they cannot be undergoing an elastic collision" },
+                    { letter: "C", text: "they cannot have different pressures" },
+                    { letter: "D", text: "they cannot be at different temperatures" }
+                ],
+                ans: "D"
+            },
+            {
+                num: 2,
+                qText: "What remains constant during a steady-flow process?",
+                options: [
+                    { letter: "A", text: "Mass" },
+                    { letter: "B", text: "Temperature" },
+                    { letter: "C", text: "Energy content of the control volume" },
+                    { letter: "D", text: "Mass and energy content of the control volume" }
+                ],
+                ans: "D"
+            },
+            {
+                num: 3,
+                qText: "Supposing two liquids of different densities ρ = 1000 kg/m3 and ρ = 200 kg/m3 were poured together inside a 150 L tank, filling it. If the resulting density of the mixture is 800 kg/m3, find the respective quantities of liquids used.",
+                options: [
+                    { letter: "A", text: "35 kg and 45 kg" },
+                    { letter: "B", text: "3.5 kg and 116.5 kg" },
+                    { letter: "C", text: "25 kg and 55 kg" },
+                    { letter: "D", text: "7.5 kg and 112.5 kg" }
+                ],
+                ans: "D"
+            },
+            {
+                num: 4,
+                qText: "A closed system may refer to ______.",
+                options: [
+                    { letter: "A", text: "Control mass" },
+                    { letter: "B", text: "Control energy" },
+                    { letter: "C", text: "Control volume" },
+                    { letter: "D", text: "Control temperature" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 5,
+                qText: "What is the power of a steam jet 15 mm in diameter moving at 654 m/s? Steam condition, 1.4 kg/cm2, dry and saturated (v = 1.256 m3/kg).",
+                options: [
+                    { letter: "A", text: "29.67 kW" },
+                    { letter: "B", text: "39.67 kW" },
+                    { letter: "C", text: "19.67 kW" },
+                    { letter: "D", text: "49.67 kW" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 6,
+                qText: "The thermodynamic properties that are independent on the size of the system is called _____.",
+                options: [
+                    { letter: "A", text: "Extensive property" },
+                    { letter: "B", text: "Open property" },
+                    { letter: "C", text: "Intensive property" },
+                    { letter: "D", text: "Closed property" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 7,
+                qText: "The specific heat of lead is 0.030 cal/g · C◦. 300 g of lead shot at 100◦ C is mixed with 100 g of water at 70◦ C in an insulated container. The final temperature of the mixture is:",
+                options: [
+                    { letter: "A", text: "85.5◦ C" },
+                    { letter: "B", text: "74.5◦ C" },
+                    { letter: "C", text: "79.5◦ C" },
+                    { letter: "D", text: "72.5◦ C" }
+                ],
+                ans: "D"
+            },
+            {
+                num: 8,
+                qText: "Which statement of the second law of thermodynamics states that no heat engine can have a thermal efficiency of 100 percent?",
+                options: [
+                    { letter: "A", text: "Kelvin-Planck statement" },
+                    { letter: "B", text: "Kevin statement" },
+                    { letter: "C", text: "Clausius statement" },
+                    { letter: "D", text: "Rankine statement" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 9,
+                qText: "An oil storage tank contains oil with specific gravity of 0.88 and depth of 20 meters. What is the hydrostatic pressure at the bottom of the tank in kg/cm2?",
+                options: [
+                    { letter: "A", text: "1.67" },
+                    { letter: "B", text: "1.56" },
+                    { letter: "C", text: "1.76" },
+                    { letter: "D", text: "1.87" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 10,
+                qText: "What statement of the second law of thermodynamics states that it is impossible to build a device that operates in a cycle and produces no effect other than the transfer of heat from a lower-temperature body to a higher-temperature body?",
+                options: [
+                    { letter: "A", text: "Kelvin-Planck statement" },
+                    { letter: "B", text: "Kelvin statement" },
+                    { letter: "C", text: "Clausius statement" },
+                    { letter: "D", text: "Rankine statement" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 11,
+                qText: "Which is NOT an extensive property of thermodynamics?",
+                options: [
+                    { letter: "A", text: "Density" },
+                    { letter: "B", text: "Volume" },
+                    { letter: "C", text: "Mass" },
+                    { letter: "D", text: "Energy" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 12,
+                qText: "Convert a vacuum pressure of 110 mm of mercury into absolute pressure. Atmospheric pressure is 5.2 m of H2O.",
+                options: [
+                    { letter: "A", text: "3.7 m of H2O" },
+                    { letter: "B", text: "45.6 m of H2O" },
+                    { letter: "C", text: "9.01 m of H2O" },
+                    { letter: "D", text: "99.5 m of H2O" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 13,
+                qText: "An open system may refer to ______.",
+                options: [
+                    { letter: "A", text: "Control mass" },
+                    { letter: "B", text: "Control energy" },
+                    { letter: "C", text: "Control volume" },
+                    { letter: "D", text: "Control temperature" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 14,
+                qText: "What refers to the measure of the disorder present in a given substance or system?",
+                options: [
+                    { letter: "A", text: "Enthalpy" },
+                    { letter: "B", text: "Heat capacity" },
+                    { letter: "C", text: "Entropy" },
+                    { letter: "D", text: "Molar heat" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 15,
+                qText: "The heat capacity of an object is:",
+                options: [
+                    { letter: "A", text: "the amount of heat energy that raises its temperature by 1◦ C" },
+                    { letter: "B", text: "the amount of heat energy that changes its state without changing its temperature" },
+                    { letter: "C", text: "the amount of heat energy per kilogram that raises its temperature by 1◦ C" },
+                    { letter: "D", text: "the ratio of its specific heat to that of water" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 16,
+                qText: "A cube of aluminum has an edge length of 20 cm. Aluminum has a density 2.7 times that of water (1 g/cm3) and a specific heat 0.217 times that of water (1 cal/g · C◦). When the internal energy of the cube increases by 47000 cal its temperature increases by:",
+                options: [
+                    { letter: "A", text: "5C◦" },
+                    { letter: "B", text: "20C◦" },
+                    { letter: "C", text: "10C◦" },
+                    { letter: "D", text: "100C◦" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 17,
+                qText: "A system in which even energy is not allowed to cross the boundary is called ____.",
+                options: [
+                    { letter: "A", text: "Closed system" },
+                    { letter: "B", text: "Isolated system" },
+                    { letter: "C", text: "Exclusive system" },
+                    { letter: "D", text: "Special system" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 18,
+                qText: "Water temperature rise of 28ºF in the water cooled condenser is equivalent in ºC to:",
+                options: [
+                    { letter: "A", text: "50.4 ºC" },
+                    { letter: "B", text: "15.6 ºC" },
+                    { letter: "C", text: "10 ºC" },
+                    { letter: "D", text: "-9.44 ºC" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 19,
+                qText: "Determine the average constant specific heat at constant pressure of steam at 10 kPa and 45.8ºC. (Note: at 47.7 ºC, h = 2588.1 kJ/kg and at 43.8ºC, h = 2581.1 kJ/kg.)",
+                options: [
+                    { letter: "A", text: "1.79 kJ/kg- ºC" },
+                    { letter: "B", text: "10.28 kJ/kg ºC" },
+                    { letter: "C", text: "58.9 kJ/kg ºC" },
+                    { letter: "D", text: "54.26 kJkg ºC" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 20,
+                qText: "What law asserts that energy has quality as well as quantity?",
+                options: [
+                    { letter: "A", text: "First law of Thermodynamics" },
+                    { letter: "B", text: "Second law of Thermodynamics" },
+                    { letter: "C", text: "Third law of Thermodynamics" },
+                    { letter: "D", text: "Zeroth law of Thermodynamics" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 21,
+                qText: "A 1.5 kg of wet steam at a pressure of 5 bar (hf = 640 kJ/kg, hfg = 2109 kJ/kg), dryness of 0.95 is blown into 70 liters of water of 12 ºC (h = 50.4 kJ/kg). Find the final enthalpy of the mixture.",
+                options: [
+                    { letter: "A", text: "74.80 kJ/kg" },
+                    { letter: "B", text: "84.80 kJ/kg" },
+                    { letter: "C", text: "94.8 kJ/kg" },
+                    { letter: "D", text: "104.80 kJ/kg" }
+                ],
+                ans: "D"
+            },
+            {
+                num: 22,
+                qText: "Extensive properties per unit mass are called _____.",
+                options: [
+                    { letter: "A", text: "Specific properties" },
+                    { letter: "B", text: "Intensive properties" },
+                    { letter: "C", text: "Relative properties" },
+                    { letter: "D", text: "Phase properties" }
+                ],
+                ans: "A"
+            },
+            {
+                num: 23,
+                qText: "A 4 kW, 20 L water heater is switched on for 10 min. The heat capacity of water is 4.187 kJ/kg ºC. Assuming total electrical energy has gone into heating the water. What is the change of water temperature?",
+                options: [
+                    { letter: "A", text: "15 ºC" },
+                    { letter: "B", text: "25.2 ºC" },
+                    { letter: "C", text: "28.7 ºC" },
+                    { letter: "D", text: "33 ºC" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 24,
+                qText: "Which is NOT an intensive property of thermodynamics?",
+                options: [
+                    { letter: "A", text: "Temperature" },
+                    { letter: "B", text: "Pressure" },
+                    { letter: "C", text: "Mass" },
+                    { letter: "D", text: "Density" }
+                ],
+                ans: "C"
+            },
+            {
+                num: 25,
+                qText: "A vapor that is not about to condense is called _____ vapor.",
+                options: [
+                    { letter: "A", text: "Saturated" },
+                    { letter: "B", text: "Superheated" },
+                    { letter: "C", text: "Compressed or subcooled" },
+                    { letter: "D", text: "Unsaturated" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 26,
+                qText: "A 4 kg/s of water at 40 ºC is mixed with 6 kg/s of water at 100 ºC in a steady flow process. The temperature of the resulting mixture is ___.",
+                options: [
+                    { letter: "A", text: "56 ºC" },
+                    { letter: "B", text: "76 ºC" },
+                    { letter: "C", text: "81 ºC" },
+                    { letter: "D", text: "91 ºC" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 27,
+                qText: "A balloon is filled with cold air and placed in a warm room. It is NOT in thermal equilibrium with the air of the room until:",
+                options: [
+                    { letter: "A", text: "it rises to the ceiling" },
+                    { letter: "B", text: "it stops expanding" },
+                    { letter: "C", text: "it sinks to the floor" },
+                    { letter: "D", text: "it starts to contract" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 28,
+                qText: "What states that for a confined fluid, the pressure at a point has the same magnitude in all directions?",
+                options: [
+                    { letter: "A", text: "Avogadro’s Law" },
+                    { letter: "B", text: "Pascal’s Law" },
+                    { letter: "C", text: "Amagat Law" },
+                    { letter: "D", text: "Bernoulli’s Theorem" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 29,
+                qText: "The zeroth law of thermodynamics allows us to define:",
+                options: [
+                    { letter: "A", text: "Work" },
+                    { letter: "B", text: "temperature" },
+                    { letter: "C", text: "pressure" },
+                    { letter: "D", text: "thermal equilibrium" }
+                ],
+                ans: "B"
+            },
+            {
+                num: 30,
+                qText: "Fahrenheit and Kelvin scales agree numerically at a reading of:",
+                options: [
+                    { letter: "A", text: "-40" },
+                    { letter: "B", text: "273" },
+                    { letter: "C", text: "0" },
+                    { letter: "D", text: "574" }
+                ],
+                ans: "D"
+            }
+        ];
+
+        let quizData = [];
+        let totalScore = 0;
+        let currentIdx = 0;
+
+        function initApp() {
+            quizData = [...rawQuestions];
+            
+            document.getElementById('nav-header').innerText = `Problems Navigator`;
+            document.getElementById('controls').style.display = 'flex';
+            buildNav();
+            renderQuestion();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+
+        function buildNav() {
+            const grid = document.getElementById('navGrid');
+            grid.innerHTML = '';
+            quizData.forEach((q, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.id = `nav-${i}`;
+                btn.innerText = q.num;
+                btn.onclick = () => { 
+                    currentIdx = i; 
+                    renderQuestion(); 
+                    if(window.innerWidth <= 768) toggleSidebar(); 
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateNavStyles() {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${currentIdx}`).classList.add('active');
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentIdx];
+            document.getElementById('q-num').innerText = `Question ${q.num} of ${quizData.length}`;
+            document.getElementById('q-text').innerText = q.qText;
+            
+            const grid = document.getElementById('opt-grid');
+            grid.innerHTML = '';
+            
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback';
+            feedback.innerText = '';
+            feedback.style.display = 'none';
+
+            q.options.forEach((opt) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                btn.innerHTML = `<span class="opt-letter">${opt.letter}.</span> ${opt.text}`;
+                
+                if (q.userAnswer) {
+                    btn.classList.add('disabled');
+                    if (opt.letter === q.ans) {
+                        btn.classList.add('actual-correct');
+                    }
+                    if (opt.letter === q.userAnswer && q.userAnswer !== q.ans) {
+                        btn.classList.add('selected-wrong');
+                    }
+                } else {
+                    btn.onclick = () => handleAnswer(opt.letter);
+                }
+                grid.appendChild(btn);
+            });
+
+            if (q.userAnswer) {
+                feedback.style.display = 'block';
+                if (q.userAnswer === q.ans) {
+                    feedback.className = 'feedback success';
+                    feedback.innerText = 'Correct!';
+                } else {
+                    feedback.className = 'feedback error';
+                    feedback.innerText = `Incorrect! The correct answer is ${q.ans}.`;
+                }
+            }
+
+            // Update Controls
+            document.getElementById('btn-prev').disabled = currentIdx === 0;
+            
+            const btnNext = document.getElementById('btn-next');
+            const btnRetake = document.getElementById('btn-retake');
+
+            if (currentIdx === quizData.length - 1) {
+                btnNext.style.display = 'none';
+                btnRetake.style.display = 'inline-block';
+            } else {
+                btnNext.style.display = 'inline-block';
+                btnRetake.style.display = 'none';
+            }
+
+            updateNavStyles();
+            
+            if (window.MathJax) {
+                MathJax.typesetPromise([document.getElementById('quizCard')]);
+            }
+        }
+
+        function handleAnswer(letter) {
+            const q = quizData[currentIdx];
+            q.userAnswer = letter;
+            
+            const navBtn = document.getElementById(`nav-${currentIdx}`);
+            if (letter === q.ans) {
+                totalScore++;
+                navBtn.classList.add('correct');
+            } else {
+                navBtn.classList.add('wrong');
+            }
+            
+            document.getElementById('score-display').innerText = `Score: ${totalScore}`;
+            renderQuestion();
+        }
+
+        function nextQ() { if (currentIdx < quizData.length - 1) { currentIdx++; renderQuestion(); } }
+        function prevQ() { if (currentIdx > 0) { currentIdx--; renderQuestion(); } }
+
+        function retakeQuiz() {
+            quizData.forEach(q => { q.userAnswer = null; });
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('correct');
+                b.classList.remove('wrong');
+            });
+            totalScore = 0;
+            currentIdx = 0;
+            document.getElementById('score-display').innerText = `Score: 0`;
+            renderQuestion();
+            document.getElementById('main-content').scrollTo(0,0);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
