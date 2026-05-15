@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermodynamics 2 Daily Exam 4 | Set A</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --main-color: #ffffff;
+            --text-color: #2c3e50;
+            --accent-color: #1a252f;
+            --highlight-color: #e67e22;
+            --correct-color: #27ae60;
+            --wrong-color: #e74c3c;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 15px 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 4px solid var(--highlight-color);
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: white;
+            margin-right: 20px;
+            transition: color 0.2s;
+        }
+
+        .hamburger:hover { color: var(--highlight-color); }
+
+        .top-bar h1 {
+            margin: 0;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 320px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            position: fixed;
+            height: calc(100% - 60px);
+            top: 60px;
+            z-index: 99;
+            transform: translateX(-100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+        }
+
+        #sidebar.open { transform: translateX(0); }
+
+        .sidebar-header {
+            padding: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: #1a252f;
+            text-align: center;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .nav-grid {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .nav-btn {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 10px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover { background-color: #95a5a6; }
+        .nav-btn.active { background-color: var(--highlight-color); box-shadow: inset 0 0 0 2px white; }
+        .nav-btn.correct { background-color: var(--correct-color); color: white; }
+        .nav-btn.wrong { background-color: var(--wrong-color); color: white; }
+
+        /* Main Content */
+        #main-content {
+            flex: 1;
+            margin-top: 60px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .quiz-card {
+            background-color: var(--main-color);
+            width: 100%;
+            max-width: 900px;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            height: fit-content;
+            margin-bottom: 40px;
+        }
+
+        .question-header {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            white-space: pre-wrap;
+        }
+
+        /* 2-Column Layout for Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+
+        .option {
+            background-color: #f8f9fa;
+            border: 2px solid #bdc3c7;
+            padding: 16px 20px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            color: var(--text-color);
+        }
+
+        .option:hover:not(.disabled) {
+            background-color: #fbeee6;
+            border-color: var(--highlight-color);
+        }
+
+        .option.actual-correct {
+            background-color: #e8f8f5;
+            border-color: var(--correct-color);
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .option.selected-wrong {
+            background-color: #fdedec;
+            border-color: var(--wrong-color);
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .option.disabled { cursor: default; }
+
+        .opt-letter {
+            font-weight: bold;
+            margin-right: 15px;
+            color: var(--highlight-color);
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .feedback.success { background-color: #e8f8f5; color: #27ae60; border: 1px solid var(--correct-color); display: block; }
+        .feedback.error { background-color: #fdedec; color: #c0392b; border: 1px solid var(--wrong-color); display: block; }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            border-top: 2px solid #ecf0f1;
+            padding-top: 20px;
+        }
+
+        .btn {
+            background-color: var(--highlight-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn:hover:not(:disabled) { background-color: #d35400; }
+        .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        .btn-retake { background-color: #3498db; }
+        .btn-retake:hover { background-color: #2980b9; }
+
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 98; display: none; }
+        #overlay.show { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <h1>Thermodynamics 2 Daily Exam 4 | SET A</h1>
+    </div>
+
+    <div id="overlay" onclick="toggleSidebar()"></div>
+    <div id="sidebar">
+        <div class="sidebar-header" id="nav-header">Loading...</div>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+
+    <div id="main-content">
+        <div class="quiz-card" id="quizCard">
+            <div class="question-header">
+                <span id="q-num">Initializing...</span>
+                <span id="score-display" style="color: var(--highlight-color);">Score: 0</span>
+            </div>
+            
+            <div class="question-text" id="q-text">Loading problem set...</div>
+            <div class="options-grid" id="opt-grid"></div>
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="controls" id="controls" style="display:none;">
+                <button class="btn" id="btn-prev" onclick="prevQ()">&#8592; Previous</button>
+                <button class="btn btn-retake" id="btn-retake" style="display:none;" onclick="retakeQuiz()">Retake Quiz</button>
+                <button class="btn" id="btn-next" onclick="nextQ()">Next &#8594;</button>
+            </div>
+        </div>
+    </div>
+
+    <script id="raw-data" type="text/plain">
+1|In a Carnot cycle engine, the volume of helium after adiabatic compression is 23.8% of that before the compression. The sink temperature is 30°C. Determine the thermal efficiency.|60.7%|62.7%|61.6%|63.7%|C
+2|When four events take place in one revolution of a crankshaft of an engine, the engine is called:|Gasoline engine|Diesel engine|two-stroke engine|four-stroke engine|C
+3|Helium gas in an ideal Otto cycle is compressed from 20°C and 2.5 L to 0.25 L, and its temperature increases by an additional 700°C during the heat addition process. The temperature of helium before the expansion process is|620°C|1240°C|1790°C|2060°C|C
+4|Detonation of pinging noise is due to:|Early timing of fuel injection|Late timing of fuel injection|head of piston carbonized|valve springs weak or broken|A
+5|A Carnot cycle operates between the temperatures limits of 300 K and 2000 K, and produces 600 kW of net power. The rate of entropy change of the working fluid during the heat addition process is|0|0.300 kW/K|0.261 kW/K|0.353 kW/K|D
+6|Otto cycle consists of:|Two isentropic and two constant volume processes|Two isentropic and two constant pressure processes|Two adiabatic and two isothermal processes|Two isothermal and two isentropic processes|A
+7|In an ideal Otto cycle, air is compressed from 1.20 kg/m³ and 2.2 L to 0.26 L, and the net work output of the cycle is 440 kJ/kg. The mean effective pressure (MEP) for this cycle is|367 kPa|599 kPa|416 kPa|612 kPa|B
+8|Which is not correct for calculating air-standard efficiency?|All processes are reversible|Specific heat remains unchanged at all temperatures|No account of the mechanism off heat transfer is considered|Gases dissociate at higher temperatures|D
+9|A 4 liter (2-liter per revolution at standard pressure and temperature) spark ignition engine has a compression ratio of 8 and 2200 kJ/kg heat addition by the fluid combustion. Considering a cold air-standard otto cycle model, how much power will the engine produce when operating at 2500 rpm?|166.53 hp|73.12 hp|97.4 hp|148 hp|A
+10|To measure the clearance between the valve and tappet of an automobile engine, we use a:|Vernier scale|Feeler gauge|pneumatic gauge|slip gauge|B
+11|An ideal Ericsson engine using helium (cp=1.25 Btu/lbm-R, R=0.4961 Btu/lbm-R) as the working fluid operates between temperature limits of 550 and 3000 R and pressure limits of 25 and 200 psia. Assuming a mass flow rate of 14 lbm/s, determine the thermal efficiency of the cycle.|61.87%|76.18%|81.67%|67.18%|C
+12|Exhaust stroke of gasoline engine is also known as|Supercharging|Choking|scavenging|knocking|C
+13|An engine operates on the air-standard Otto cycle. The cycle work is 1000 kJ/kg. What is the compression ratio of the engine if the maximum cycle temperature is 3173K and the temperature at the end of isentropic compression is 773K.|6.85|7.85|8.85|9.85|C
+14|In a gasoline engine cycle, the heat is added during|Isothermal process|Isometric process|isobaric process|isentropic process|B
+15|The compression ratio of an engine working on the constant volume cycle is 9.3 to 1. At the beginning of compression the temperature is 31C and at the end of combustion is 1205C. Taking the compression and expansion to adiabatic and k as 1.4. What is the thermal efficiency?|54.02%|56.02%|58.02%|59.02%|D
+16|The heat exchanger used in an Ericsson cycle is|Regenerator|Combustion chamber|intercooler|recuperator|D
+17|The efficiency of an ideal Otto cycle is 40%. What is the hot air value of k, if the compression ratio is 6.2?|1.28|1.38|1.25|1.35|A
+18|In Stirling engine, the heat is added during|Isothermal process|Isometric process|isobaric process|isentropic process|A
+19|A heat engine receives heat from a source at 1200 K at a rate of 500 KJ/s and rejects the waste heat to a medium at 276 K. The power output of the heat engine is 180 KW. Determine the irreversibility rate for this process.|190 KW|195 KW|200 KW|205 KW|D
+20|Air standard efficiency of an Otto cycle depends on|speed|fuel thermal energy|fuel amount|compression ratio|D
+21|In an air-standard Otto cycle, air enters at 104.7 kPa and 27 C. The compression ratio is 7:1. If the net wrk of the cycle is 120 kJ/kg, what is the heat supplied?|122.88 kJ/kg|188.22 kJ/kg|221.88 kJ/kg|288.12 kJ/kg|C
+22|The indicator used to determine the anti-knock characteristics of gasoline.|Aniline point|Octane number|Cetane number|Diesel index|B
+23|A Carnot cycle is represented by a rectangle in a T-s diagram that operates between temperature limits of 300K and 650K. Inscribed within a rectangle is a triangle with based coincides with the sink temperature and the triangle apex with the source temperature. Considering that the base of the triangle is three times that of its altitude. Determine the thermal efficiency of the cycle represented by a triangle.|44.88%|43.66%|36.84%|34.68%|C
+24|Which of the following does not belong to the group?|Stirling Cycle|Carnot Power Cycle|Ericsson Cycle|Otto cycle|D
+25|What must be the temperature in °F at which heat is supplied to a Carnot engine if twice as much energy is delivered as work as rejected to the sink at 50°F?|1040 °F|1070 °F|1650 °F|1560 °F|B
+26|Two-stroke engine performs _____ to complete one cycle.|suction and discharge stroke|power and exhaust stroke|compression and power stroke|suction and exhaust stroke|C
+27|The stroke of a gas engine which works on the constant volume cycle is 450 mm. The pressure at the beginning of the compression is 1.01 bar and at the end of the compression it is 11.1bar. Assuming compression follows the law PV^1.36 = C, calculate the clearance between the piston and cylinder cover at the end of compression in mm of length.|73.26 mm|83.26 mm|93.26 mm|103.26 mm|C
+28|In a spark ignition engine, the detonation occurs near the|end of combustion|beginning of combustion|middle of combustion|beginning of interaction|A
+29|In an air standard Otto cycle, the clearance volume is 12% of the displacement volume. What is the thermal efficiency?|57%|59%|58%|60%|B
+30|A fictitious pressure which determines the approximate value of power to be produced by a certain heat engine.|Indicated mean effective pressure|Brake mean effective pressure|Mean effective pressure|Engine mean effective pressure|C
+    </script>
+
+    <script>
+        const rawText = document.getElementById('raw-data').textContent.trim();
+        const quizData = [];
+        let totalScore = 0;
+        let currentIdx = 0;
+
+        function initApp() {
+            const lines = rawText.split('\n');
+            lines.forEach(line => {
+                if (line.trim() === '') return;
+                const parts = line.split('|');
+                if (parts.length === 7) {
+                    quizData.push({
+                        num: parseInt(parts[0]),
+                        qText: parts[1].trim(),
+                        options: [
+                            { letter: 'A', text: parts[2].trim() },
+                            { letter: 'B', text: parts[3].trim() },
+                            { letter: 'C', text: parts[4].trim() },
+                            { letter: 'D', text: parts[5].trim() }
+                        ],
+                        ans: parts[6].trim().toUpperCase(),
+                        userAnswer: null
+                    });
+                }
+            });
+
+            if (quizData.length === 0) {
+                document.getElementById('q-text').innerHTML = "<span class='error-message'>Parse Error: Could not extract questions from the provided file.</span>";
+                return;
+            }
+            
+            document.getElementById('nav-header').innerText = `30 Problems Navigator`;
+            document.getElementById('controls').style.display = 'flex';
+            buildNav();
+            renderQuestion();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+
+        function buildNav() {
+            const grid = document.getElementById('navGrid');
+            grid.innerHTML = '';
+            quizData.forEach((q, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.id = `nav-${i}`;
+                btn.innerText = q.num;
+                btn.onclick = () => { 
+                    currentIdx = i; 
+                    renderQuestion(); 
+                    if(window.innerWidth <= 768) toggleSidebar(); 
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateNavStyles() {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${currentIdx}`).classList.add('active');
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentIdx];
+            document.getElementById('q-num').innerText = `Question ${q.num} of ${quizData.length}`;
+            document.getElementById('q-text').innerText = q.qText;
+            
+            const grid = document.getElementById('opt-grid');
+            grid.innerHTML = '';
+            
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback';
+            feedback.innerText = '';
+            feedback.style.display = 'none';
+
+            q.options.forEach((opt) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                btn.innerHTML = `<span class="opt-letter">${opt.letter}.</span> ${opt.text}`;
+                
+                if (q.userAnswer) {
+                    btn.classList.add('disabled');
+                    if (opt.letter === q.ans) {
+                        btn.classList.add('actual-correct');
+                    }
+                    if (opt.letter === q.userAnswer && q.userAnswer !== q.ans) {
+                        btn.classList.add('selected-wrong');
+                    }
+                } else {
+                    btn.onclick = () => handleAnswer(opt.letter);
+                }
+                grid.appendChild(btn);
+            });
+
+            if (q.userAnswer) {
+                feedback.style.display = 'block';
+                if (q.userAnswer === q.ans) {
+                    feedback.className = 'feedback success';
+                    feedback.innerText = 'Correct!';
+                } else {
+                    feedback.className = 'feedback error';
+                    feedback.innerText = `Incorrect! The correct answer is ${q.ans}.`;
+                }
+            }
+
+            // Update Controls
+            document.getElementById('btn-prev').disabled = currentIdx === 0;
+            
+            const btnNext = document.getElementById('btn-next');
+            const btnRetake = document.getElementById('btn-retake');
+
+            if (currentIdx === quizData.length - 1) {
+                btnNext.style.display = 'none';
+                btnRetake.style.display = 'inline-block';
+            } else {
+                btnNext.style.display = 'inline-block';
+                btnRetake.style.display = 'none';
+            }
+
+            updateNavStyles();
+            
+            if (window.MathJax) {
+                MathJax.typesetPromise([document.getElementById('quizCard')]);
+            }
+        }
+
+        function handleAnswer(letter) {
+            const q = quizData[currentIdx];
+            q.userAnswer = letter;
+            
+            const navBtn = document.getElementById(`nav-${currentIdx}`);
+            if (letter === q.ans) {
+                totalScore++;
+                navBtn.classList.add('correct');
+            } else {
+                navBtn.classList.add('wrong');
+            }
+            
+            document.getElementById('score-display').innerText = `Score: ${totalScore}`;
+            renderQuestion();
+        }
+
+        function nextQ() { if (currentIdx < quizData.length - 1) { currentIdx++; renderQuestion(); } }
+        function prevQ() { if (currentIdx > 0) { currentIdx--; renderQuestion(); } }
+
+        function retakeQuiz() {
+            quizData.forEach(q => { q.userAnswer = null; });
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('correct');
+                b.classList.remove('wrong');
+            });
+            totalScore = 0;
+            currentIdx = 0;
+            document.getElementById('score-display').innerText = `Score: 0`;
+            renderQuestion();
+            document.getElementById('main-content').scrollTo(0,0);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
