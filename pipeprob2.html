@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Industrial & Power Plant Design Elements Quiz</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --main-color: #ffffff;
+            --text-color: #2c3e50;
+            --accent-color: #2c3e50;
+            --highlight-color: #2980b9;
+            --correct-color: #27ae60;
+            --wrong-color: #c0392b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 15px 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 4px solid var(--highlight-color);
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: white;
+            margin-right: 20px;
+            transition: color 0.2s;
+        }
+
+        .hamburger:hover { color: var(--highlight-color); }
+
+        .top-bar h1 {
+            margin: 0;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 320px;
+            background-color: #34495e;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            position: fixed;
+            height: calc(100% - 60px);
+            top: 60px;
+            z-index: 99;
+            transform: translateX(-100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+        }
+
+        #sidebar.open { transform: translateX(0); }
+
+        .sidebar-header {
+            padding: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: #2c3e50;
+            text-align: center;
+            border-bottom: 1px solid #1a252f;
+        }
+
+        .nav-grid {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .nav-btn {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 10px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover { background-color: #95a5a6; }
+        .nav-btn.active { background-color: var(--highlight-color); box-shadow: inset 0 0 0 2px white; }
+        .nav-btn.correct { background-color: var(--correct-color); color: white; }
+        .nav-btn.wrong { background-color: var(--wrong-color); color: white; }
+
+        /* Main Content */
+        #main-content {
+            flex: 1;
+            margin-top: 60px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .quiz-card {
+            background-color: var(--main-color);
+            width: 100%;
+            max-width: 900px;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            height: fit-content;
+            margin-bottom: 40px;
+        }
+
+        .question-header {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            white-space: pre-wrap;
+        }
+
+        /* 2-Column Layout for Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+
+        .option {
+            background-color: #f8f9fa;
+            border: 2px solid #bdc3c7;
+            padding: 16px 20px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            color: var(--text-color);
+        }
+
+        .option:hover:not(.disabled) {
+            background-color: #ebf5fb;
+            border-color: var(--highlight-color);
+        }
+
+        .option.actual-correct {
+            background-color: #e8f8f5;
+            border-color: var(--correct-color);
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .option.selected-wrong {
+            background-color: #fdedec;
+            border-color: var(--wrong-color);
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .option.disabled { cursor: default; }
+
+        .opt-letter {
+            font-weight: bold;
+            margin-right: 15px;
+            color: var(--highlight-color);
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+            white-space: pre-wrap;
+        }
+
+        .feedback.success { background-color: #e8f8f5; color: #27ae60; border: 1px solid var(--correct-color); display: block; }
+        .feedback.error { background-color: #fdedec; color: #c0392b; border: 1px solid var(--wrong-color); display: block; }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            border-top: 2px solid #ecf0f1;
+            padding-top: 20px;
+        }
+
+        .btn {
+            background-color: var(--highlight-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn:hover:not(:disabled) { background-color: #1f618d; }
+        .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        .btn-retake { background-color: #e67e22; }
+        .btn-retake:hover { background-color: #d35400; }
+
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 98; display: none; }
+        #overlay.show { display: block; }
+        
+        .error-message { color: var(--wrong-color); font-weight: bold; text-align: center; display: block; width: 100%; }
+        .note { font-size: 0.9rem; color: #7f8c8d; text-align: center; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <h1>Industrial & Power Plant Design Elements</h1>
+    </div>
+
+    <div id="overlay" onclick="toggleSidebar()"></div>
+    <div id="sidebar">
+        <div class="sidebar-header" id="nav-header">Loading...</div>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+
+    <div id="main-content">
+        <div class="quiz-card" id="quizCard">
+            <div class="question-header">
+                <span id="q-num">Initializing...</span>
+                <span id="score-display" style="color: var(--highlight-color);">Score: 0</span>
+            </div>
+            
+            <p class="note">Note: This quiz contains all problems parsed from the uploaded document.</p>
+
+            <div class="question-text" id="q-text">Parsing problem set (this may take a moment)...</div>
+            <div class="options-grid" id="opt-grid"></div>
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="controls" id="controls" style="display:none;">
+                <button class="btn" id="btn-prev" onclick="prevQ()">&#8592; Previous</button>
+                <button class="btn btn-retake" id="btn-retake" style="display:none;" onclick="retakeQuiz()">Retake Quiz</button>
+                <button class="btn" id="btn-next" onclick="nextQ()">Next &#8594;</button>
+            </div>
+        </div>
+    </div>
+
+    <script id="raw-data" type="text/plain">
+1|An air-vapor mixture has a DB temperature of 30 oC and a humidity ratio of 0.015 kg/kg d.a. Calculate the enthalpy.|68.527 kJ/kg d.a.|78.527 kJ/kg d.a.|58.527 kJ/kg d.a.|88.527 kJ/kg d.a.|A
+2|What is the specific gravity of a fuel at 28o Baume?|0.868|0.688|0.886|0.986|C
+3|Calculate the moisture content of moist air at 20 oC DB, 15 oC WB, and 95 kPa barometric pressure. Let the saturation pressure of water at 15 oC equals to 1.7057 kPaa and at 20 oC is 2.339 kPaa.|0.00923 kg/kg d.a.|0.00293 kg/kg d.a.|0.00392 kg/kg d.a.|0.00239 kg/kg d.a.|A
+4|Determine the mass of a nitrogen gas confined in a 6 m3 tank at a pressure of 198.675 kPag and temperature of 40 oC.|18.4 kg|19.4 kg|20.4 kg|17.4 kg|A
+5|The heat rejected from condenser is 300 kW. The water required to cool the refrigerant is 5 lps. Determine the temperature of water leaving the condenser if water enters at 25 C.|39.33 oC|33.39 oC|33.93 oC|43.93 oC|A
+6|Determine the resulting pressure when one kilogram of air at 103 kPaa and 95 oC is heated at constant volume to 425 oC.|205.36 kPaa|195.35 kPaa|196.35 kPaa|193.56 kPaa|A
+7|What is the amount of heat added to 15 kg of air to increase its temperature from 30 oC to 250 oC without changing the pressure?|3230.46 kJ|3420.26 kJ|3320.46 kJ|3640.36 kJ|A
+8|Determine the compressor work of a Brayton cycle if its pressure ratio is 8 and the initial temperature is 32 oC.|248.67 kJ/kg|278.47 kJ/kg|284.67 kJ/kg|267.84 kJ/kg|A
+9|If the specific humidity of moist air is 0.027 at 1 atmosphere pressure. What is the partial pressure of the water vapor in the mixture?|4.215 Kpaa|3.516 Kpaa|3.617 Kpaa|2.584 kPaa|A
+10|If the enthalpy of a certain gas is 2400 kJ/kg and its internal energy is 2200 kJ/kg, find the specific volume at a pressure of 950 kPaa.|0.2105 m3/kg|0.2501 m3/kg|0.2015 m3/kg|0.1025 m3/kg|A
+11|Determine the maximum temperature of a Carnot cycle if it operates at a minimum temperature of 20 oC with an efficiency of 60 %.|459.5 oC|455.9 oC|495.5 oC|559.4 oC|A
+12|Air at 1 MPaa and 310 oC is expanded to 250 kPaa in accordance with the relation pV1.25 = C. Determine the work done.|+ 162.11 kJ/kg|- 162.11 kJ/kg|+ 126.11 kJ/kg|- 126.11 kJ/kg|A
+13|A Rankine cycle operates with a thermal efficiency of 40 % and the factor of evaporation of the boiler is 1.15. Determine the mass flow rate of steam if the cycle power output is 5.5 MW.|5.3 kg/s|4.3 kg/s|3.5 kg/s|6.3 kg/s|A
+14|The mixing ratio of humid air is 0.034 at a dry-bulb temperature of 27C. Determine the enthalpy of the given air. hg @27 C = 2550.8 KJ/kg.|67.25 kJ/kg|80.62 KJ/kg|103.69 KJ/kg|55.68 KJ/kg|A
+15|The dry bulb temperature of humid air is 35C. What is the wet-bulb depression in F if the wet-bulb temperature is 18C?|17.6|30.6|18.0|25.8|A
+16|The enthalpies at the entrance and exit of a steam engine are 2700 kJ/kg and 2000 kJ/kg, respectively. The steam consumption of the engine is 1000 kg/hr. If the indicated efficiency is 66 % and the mechanical efficiency is 92 %, determine the engine brake power output.|118.06 kW|181.06 kW|110.86 kW|168.01 kW|A
+17|The percent rating of water tube boiler is 200 %, factor of evaporation is 1.10, and heating surface is 400 ft2. Determine the rate of evaporation, in kg/hr.|1831|1831|1138|1813|A
+18|A boiler operates at 82.5 % efficiency while the mass of steam generated is 408 200 kg in 5 hours. The enthalpy of steam is 3187 kJ/kg and feed is 604.83 kJ/kg while the fuel used for boiler has a heating value of 32 567.85 kJ/kg. Find the mass of fuel needed per day in metric tons.|188.3|183.8|138.8|318.8|A
+19|A 10 kg/s of air enters the theater at 16 oC. The theater is to be maintained at 27 oC DB and 20 oC WB. If the sensible heat ratio is 0.80, what is the latent heat load of the theater?|27.67 kW|26.75 kW|110.682 kW|72.67 kW|A
+20|Determine the mole fraction of the helium in a mixture of 45 % helium and 55 % nitrogen by mass analysis.|14.84 %|85.16 %|18.44 %|81.56 %|A
+21|A 60 MW power plant has an average load of 34 500 kW and a load factor of 0.75. Find the reserve power over a peak load power.|14 000 kW|20 000 kW|46 000 kW|5 000 kW|A
+22|A steam generator burns fuel oil with 20 % excess air. Fuel may be represented by C14H30. Calculate the actual-air fuel ratio.|17.9|18.7|16.7|15.7|A
+23|A certain coal has the following ultimate analysis by weight. C = 67 %, Ash = 5 %, Moisture = 8 %, N = 6 %, H = 3 %, Sulfur = 7 %, O = 4 %. Calculate the air-fuel ratio if this coal is burned with 50 % excess air.|12.4|13.3|14.3|12.4|A
+24|A container filled with helium is dropped 4 km above the ground, find the change of temperature?|12.6 oC|17.5|15.2 oC|18.5 oC|A
+25|2.5 m3/s of humid air at a state of 28C DB, 21 WB and 101.325 Kpaa flow across a cooler coil and leaves at 12.5C DB and 0.0083 kg vapor per kg dry air. If the apparatus dew point (ADP) is 8.5, compute for the contact factor (CF).|0.835|0.795|0.579|0.306|A
+26|A pump draws water at a head of 110 m and a discharge rate of 550 lps. Determine the brake power input if the pump efficiency is 70 %.|847.57 kW|874.57 kW|875.74 kW|854.75 kW|A
+27|A turbine has a peripheral coefficient of 0.6. Find the runner diameter of the turbine if it operates at 450 rpm and a head of 60 m.|0.874 m|0.784 m|0.478 m|0.748 m|A
+28|A 5 m x 5 m wall of a room has a surface temperature of 40 oC. The wall thickness is 25 cm and has a thermal conductivity of 0.07 W/m-oK, and air film conductance is 15 W/m2-oK. If the outside air temperature is 18 oC, what is the heat loss through the wall?|151.18 W|185.18 W|158.11 W|118.15 W|A
+29|An air compressor operates with discharge pressure of 6 times the suction pressure. If the volume flow rate at the suction is 0.8 m3/s and the compression process is in accordance with pV1.38 = C, determine the compressor power, in kW.|187.16 kW|178.16 kW|167.18 kW|168.17 kW|A
+30|A horizontal pipe carries oil with a specific gravity of 0.83. If two pressure gauges along the pipe read 515 kPa and 430 kPa, respectively. Determine the head loss between the two gauges.|10.44 m|14.40 m|14.04 m|40.14 m|A
+31|Air at 33 oC DB and 19 oC WB is cooled and humidified by passing through an air washer in which water is continuously recirculated. The air leaves the air washer at 23 oC DB. What is the efficiency of the air washer?|71.43 %|73.41 %|74.31 %|73.14 %|A
+32|A stream of outdoor air is mixed with a stream of return air in an air conditioning system that operated at 101.325 kPa barometric pressure. The flow rate of outdoor air is 2 kg/s, and its conditions are 35 oC DB, 25 oC WB, and 0.0159 kg/kg d.a.. The flow rate of return air is 3 kg/s, and its conditions are 24 oC DB, 50 % RH, and 0.00925 kg/kg d.a. Determine the temperature of the mixture.|28.4 oC|26.4 oC|29.4 oC|30.4 %|A
+33|Determine the indicated power of a four-cylinder, 4-stroke, Diesel engine with 20-cm bore and 30-cm stroke running at 1000 rpm and has a reading of 450 kPa mean effective pressure in the indicator diagram.|159.83 Hp|189.53 Hp|158.93 Hp|198.53 Hp|A
+34|The approach and efficiency of cooling tower are 10 oC and 65 %, respectively. If the temperature of water leaving the tower is 27 oC, determine the temperature of water entering the tower.|54.57 oC|55.47 oC|45.57 oC|54.75 oC|A
+35|If the sensible heat ratio is 0.80 and the cooling load is 100 kW, what is the amount of sensible heat?|100 kW|125 kW|80 kW|60 kW|A
+36|A dryer is to deliver 1000 kg/hr of cassava with 2 % moisture and 20 % moisture in the feed. Determine the mass of air required per hour if the change in humidity ratio is 0.0165.|16 136.36 kg/hr|13 636.36 kg/hr|13 163.63 kg/hr|16 336.63 kg/hr|A
+37|The change of enthalpy in an air conditioning unit is 23.5 kJ/kg. The mass of supply air is 68000 kg/hr. What is the conditioner capacity, in TR?|126.21 TR|125.26 TR|162.25 TR|152.26 TR|A
+38|A DC motor driven pump running at 100 rpm delivers 30 lps of water against a total pumping head of 27 m with a pump efficiency of 60 %. What speed would result if the pump rpm is increased to a pumping head of 36 m assuming no change in efficiency?|115.47 rpm|114.57 rpm|117.54 rpm|114.75 rpm|A
+39|A mechanical draft cooling tower cools the cooling water from 60C to 25C at the rate of 8 kg/sec. Atmospheric air enters the tower at a state of 20C DB and 16C WB. The air leaves the tower at 35C. What is the temperature of approach?|9C|6C|8C|35C|A
+40|In a geothermal power plant, the enthalpies of the ground water and the turbine inlet are 1500 kJ/kg and 3500 kJ/kg respectively. If the enthalpy of the hot water in the flash tank is 700 kJ/kg and the mass flow rate of steam is 15 kg/s, what is the mass flow rate of ground water?|52.5 kg/s|55.2 kg/s|25.5 kg/s|35.2 kg/s|A
+41|12 kg of gas with a molecular mass of 30 at 101.325 kPaa pressure and 30 oC temperature occupies a volume of 9500 liters. Determine the compressibility factor.|0.955|0.595|0.795|0.895|A
+42|A refrigeration compressor has a specific volume of 0.0482 m3/kg at entrance and 0.017 m3/kg at the exit. If volumetric efficiency is 90 %, determine the percent clearance of the compressor.|5.45 %|5.54 %|4.55 %|5.65 %|A
+43|In an air-standard Brayton cycle, air enters compressor at 1 bar and 15 oC. The pressure leaving the compressor is 0.6 MPaa and maximum temperature of the cycle is 1000 oC. Calculate the cycle thermal efficiency.|35 %|32 %|37.5 %|40 %|A
+44|Liquid ammonia at a temperature of 26 oC is available at the expansion valve. The temperature of the vaporizing ammonia in the evaporator is 2 oC. Find the percentage of liquid vaporized while flowing through the expansion valve. Properties of refrigerant: At t = 2 oC, hf = 190.4 kJ/kg and hg = 1445.6 kJ/kg; At 26 oC, hf = 303.6 kJ/kg and hg = 1465.6 kJ/kg.|10.2 %|9.02 %|11.02 %|12.02 %|A
+45|An ideal dual combustion cycle operates on 0.45 kg of air. At the beginning of compression, the air is 97 kPaa, 43 oC. Let rp = 1.5, rc = 1.6, and rk = 11. Determine the percent clearance.|10 %|11 %|9 %|12 %|A
+46|An ideal dual combustion cycle operates on 0.45 kg of air. At the beginning of compression, the air is 97 kPaa, 43 oC. Let rp = 1.5, rc = 1.6, and rk = 11. Determine the thermal efficiency.|58.7 %|57.8 %|48.7 %|68.7 %|A
+47|In an air standard Otto cycle, the clearance volume is 18 % of the displacement volume. Find the thermal efficiency. (10/93)|52 %|53 %|55 %|60 %|A
+48|Helium is used in a Carnot engine where the volumes beginning with the constant temperature heat addition are V1 = 0.3565 m3, V2 = 0.5130 m3, V3 = 8.0 m3, and V4 = 5.57 m3. Determine the thermal efficiency if k = 1.666.|83.95 %|89.35 %|85.93 %|85.39 %|A
+49|Determine the equivalence ratio of the following mixture: 4 grams of butane, C4H10, and 75 grams of air.|0.72|0.92|0.62|0.82|A
+50|A hydraulic turbine receives water from a reservoir at an elevation of 100 m above it. What is the minimum water flow in kg/s to produce a steady turbine output of 50 MW?|51 000|15 000|50 100|50 010|A
+51|An ideal vapor compression cycle requires 2.5 kW to power the compressor. You have found the following data for the cycle: the enthalpy at the condenser entrance = 203 kJ/kg, exit = 55 kJ/kg; and evaporator entrance = 55 kJ/kg, exit = 178 kJ/kg. If the mass flow rate of the refrigerant is 0.10 kg/s, what is the coefficient of performance of the system?|9.42|4.92|4.29|2.94|A
+52|A 100 TR system is used to produce chilled water from 22 C to 2 C. Determine the volume flow rate of water in lps.|3.2 lps|4.2 lps|3.8 lps|4.8 lps|A
+53|A refrigeration system operates on the reversed Carnot cycle. The minimum and maximum temperatures are 25 oC and 72 oC, respectively. If the heat rejected at the condenser is 6000 kJ/min, determine the power input required.|1686.83 kJ/min|1668.83 kJ/min|1866.83 kJ/min|1683.68 kJ/min|A
+54|Fish weighing 11 000 kg with a temperature of 20 oC is brought to a cold storage and which shall be cooled to 10 oC in 11 hours. Find the required plant refrigerating capacity in TR if the specific heat of fish is 0.7 kCal/kg-oC above freezing and 0.30 kCal/kg-oC below freezing point that is 3 oC. The latent heat of freezing is 55.5 kCal/kg.|25.26|14.38|15.26|24.38|A
+55|Determine the brake power of the engine having a brake thermal efficiency of 35 % and uses 25 oAPI fuel with fuel consumption of 40 kg/hr.|160.67 kW|173.52 kW|174.52 kW|165.84 kW|A
+56|A refrigeration compressor has a specific volume of 0.0482 m3/kg at entrance and 0.017 m3/kg at the exit. If volumetric efficiency is 90 %, determine the percent clearance of the compressor.|5.45 %|5.54 %|4.55 %|5.65 %|A
+57|In a Carnot cycle, heat addition occurs during which of the following processes?|Isothermal compression process|Isentropic expansion process|Isothermal expansion process|Isentropic compression process|C
+58|Stirling cycle is also called as:|Constant volume regenerative cycle|Constant pressure regenerative cycle|Constant temperature regenerative cycle|Constant entropy regenerative cycle|A
+59|Ericson cycle is also called as:|Constant volume regenerative cycle|Constant pressure regenerative cycle|Constant temperature regenerative cycle|Constant entropy regenerative cycle|B
+60|It is the generic term given to a family of solid fuels with high carbon content. How do you call this?|Solid fuel|Coal|Anthracite|Bituminous|B
+61|Pressure drop caused by friction in fully developed fluid flow can be determined directly using which of the following?|Computational fluid dynamics|The Bernoullis equation|The Darcy-Weisbach equation|The first law of thermodynamics|C
+62|The existing 2000 TR chiller at a large hospital, where you are assigned as Engineer, must be replaced. Which of the following types most likely to be installed?|Screw chiller|Scroll Chiller|Reciprocating chiller|Centrifugal chiller|D
+63|Which of the following parameters has the greatest limiting effect on the thermal performance of an open, evaporative cooling tower?|Wet-Bulb temperature|Dry-Bulb temperature|Range|Approach|A
+64|The amount of heat required melting a ton (2000 lbs) of ice at 32F, 288,000 Btu/24 hr, 12,000 Btu/hr, or 200 Btu/min.|KW of Refrigeration|Tons of Refrigeration|Refrigerating Effect|Latent Heat|B
+65|It is the temperature of vapor refrigerant above its saturation temperature corresponding to the given pressure..|Saturated|Superheat|Subcooled|Absolute|B
+66|What is the chemical name of R-23?|Trifluoromethane|Dichlorofluoromethane|Dichlorotetrafluoroethane|Trichlorofluoromethane|A
+67|In a vapor-compression refrigeration system, evaporator is a component normally called as:|High-pressure vapor heat exchanger|Low-pressure heat exchanger|Throttling device|Pressure-raising device|B
+68|It is a component in the refrigeration system that returns the lubricating oil, carried over by the refrigerant vapors, to the compressor. How do you call this component?|Liquid receiver|Oil separator|Accumulator|Capillary tube|B
+69|It is a boiler fuel created from the residue produced from crude petroleum after it has been distilled to produce lighter oils like gasoline, paraffin, kerosene, diesel or gas oil. What is this fuel?|Oil|Kerosene|Coke|Peat|A
+70|What do you call a form of boiler fuel that is easy to burn, with very little excess air?|Coal|Oil|Gas|Bunker|C
+71|It defined as energy added to or removed from a system divided by the mean absolute temperature over which the change takes place. How do you call this?|Enthalpy|Heat energy|Specific heat|Entropy|D
+72|The second law of thermodynamics says that whenever energy is exchanged or converted from one form to another, the potential for energy to do work will be _________.|Decreased|Increased|Zero|Stagnant|A
+73|It is a space, or several rooms, or units of space having some sort of coincident loads or similar operating characteristics. It may or may not be an enclosed space, or it may consist of many partitioned rooms. How do you call this?|Zone|Room|Space|Plenum|A
+74|In air conditioning, it indicates either a volume or a site without a partition or a partitioned room or group of rooms. How do you call this?|Zone|Room|Space|Plenum|C
+75|What is true about steam as it condenses?|It does so at constant entropy and temperature|It does so at constant enthalpy and reducing temperature|Both enthalpy and entropy reduce and temperature remains constant|Both enthalpy and entropy increase|C
+76|It is an increase in fluid pressure in a long pipe caused by a sudden velocity decrease, where the sudden decrease in velocity is caused by a valve closing.|Aero dynamics|Water hammer|Terminal velocity|Drag|B
+77|It is the term referring to any glazed aperture in a building envelope; the components of which include the following: glazing material, either glass or plastic; framing, mullions, muntins, and dividers; external shading devices; and integral-shading systems (between glass). What is this?|Infiltration|Radiation|Fenestration|Transmission|C
+78|It is an envelope area with significantly higher rate of heat transfer than the contiguous enclosure. How do you call this?|Thermal Bridge|Thermal Radiation|Thermal Surface|Thermal area|A
+79|How is the water in a pressurized deaerator heated to the required temperature?|By a blanket of steam above the water|By direct steam injection into the water|By a spray of steam as it enters the deaerator dome|It is not heated further but just held at a higher pressure|B
+80|It is the rate, in Btu/h or W, of heat transfer at the coil. Its cooling load component is the rate at which heat is removed by the chilled water flowing through the coil or is absorbed by the refrigerant inside the coil. What do you call this?|Coil load|Heating coil load|Refrigerating load|Cooling load|A
+81|It is the rate, in Btu/hr or W, at which heat is added to the conditioned air from the hot water, steam, or electric heating elements inside the coil.|Coil load|Heating coil load|Refrigerating load|Cooling load|B
+82|It is an upward force that is exerted on an object (like flat plate, airfoil, rotating cylinder, etc.) as the object passes through a fluid. What do you call this?|Drag|Lift|Aero horsepower|Terminal velocity|B
+83|What is a frictional force that acts parallel but opposite to the direction of motion of fluid?|Drag|Lift|Aero horsepower|Terminal velocity|A
+84|It is a humidity sensor used to measure relative humidity, dew point, or absolute humidity of ambient or moving air. This device could be mechanical or electronic. How do you call this?|Hydrometer|Hygrometer|Psychrometer|Barometer|B
+85|It is a device designed to control the flow of steam, water, gas, or other fluids. It can be considered a variable orifice positioned by an actuator in response to impulses or signals from the controller. It may be equipped with either a throttling plug, V-port, or rotating ball specially designed to provide a desired flow characteristic. How do you call this device.|Automatic Valve|Automatic flow meter|Thermostat|Pyrometer|A
+86|It is a term used by automobile manufacturers to designate the power required to move a car horizontally at 50 mi/hr against the drag force. What is this?|Mechanical horsepower|Aero horsepower|Fuel power|Fluid power|B
+87|A manufacturer claims that it has a COP of 2.0 when cooling a food at 5 oC using ambient air at 30 oC as a heat sink. Is the claim of the manufacturer valid?|Yes|No|Probably|It needs experimental verification|A
+88|A storage chamber for low-side liquid refrigerant; also known as surge drum, or surge header. Also, a pressure vessel whose volume is used in a refrigerant circuit to reduce pulsation.|Receiver|Accumulator|Absorber|Oil separator|B
+89|A form of aluminum oxide that absorbs moisture readily and is used as a drying agent.|Calcium chloride|Lithium bromide|Activated carbon|Activated alumina|D
+90|A form of carbon made porous by special treatment by which it is capable of absorbing various odors, anesthetics and other vapors.|Activated carbon|Activated alumina|Absorber|Absorbent|A
+91|What can you say about the velocity of fluid at the center of the pipe section?|Maximum|Minimum|Average|Zero|A
+92|Continuity equation is applicable to which of the following?|Viscous and unviscous fluids|Compressibility fluids|Conservation of mass|Steady and unsteady flows|C
+93|Hygrometer is an instrument used to determine of which of the following?|Specific gravity of fluids|Specific gravity of gases|Specific gravity of liquids|Specific gravity of solids|A
+94|The temperature at which the condensation of water vapor in a space begins for a given state of humidity and pressure as the temperature of the vapor is reduced. This is the temperature corresponding to saturation for a given absolute humidity at constant pressure.|Dew point temperature|Wet bulb temperature|Dry bulb temperature|Saturation temperature|A
+95|The temperature of gas or mixture of gases indicated by an accurate thermometer after correction for radiation.|Dew point temperature|Wet bulb temperature|Dry bulb temperature|Saturation temperature|C
+96|The temperature registered by a thermometer whose bulb is covered by a wetted wick and exposed to a current of rapidly moving air.|Dew point temperature|Wet bulb temperature|Dry bulb temperature|Saturation temperature|B
+97|The ratio of the actual water vapor pressure of the air to the saturated water vapor pressure of the air at the same temperature is known as:|Relative humidity|Humidity ratio|Specific humidity|Percent humidity|A
+98|The weight of water vapor in grains, pounds, grams, or kilograms per grain, pound, gram, or kilogram of dry air.|Relative humidity|Specific volume|Specific humidity|Percent humidity|C
+99|At critical point of a pure substance, what is the value of latent heat?|Maximum|Minimum|Zero|Below zero|C
+100|Which of the following is a function of a steam nozzle?|Converts kinetic energy into heat energy|Changes internal energy into kinetic energy|Converts potential energy into heat energy|Changes enthalpic energy into kinetic energy|D
+    </script>
+
+    <script>
+        const rawText = document.getElementById('raw-data').textContent.trim();
+        const quizData = [];
+        let totalScore = 0;
+        let currentIdx = 0;
+
+        function initApp() {
+            const lines = rawText.split('\n');
+            lines.forEach((line, index) => {
+                if (line.trim() === '') return;
+                const parts = line.split('|');
+                if (parts.length >= 6) {
+                    quizData.push({
+                        num: index + 1,
+                        qText: parts[1].trim(),
+                        options: [
+                            { letter: 'A', text: parts[2].trim() },
+                            { letter: 'B', text: parts[3].trim() },
+                            { letter: 'C', text: parts[4].trim() },
+                            { letter: 'D', text: parts[5].trim() }
+                        ],
+                        ans: parts[6].trim().toUpperCase(),
+                        feedback: parts[7] ? parts[7].trim() : '',
+                        userAnswer: null
+                    });
+                }
+            });
+
+            if (quizData.length === 0) {
+                document.getElementById('q-text').innerHTML = "<span class='error-message'>Parse Error: Could not extract questions from the provided file.</span>";
+                return;
+            }
+            
+            document.getElementById('nav-header').innerText = `1 to 100 Navigator`;
+            document.getElementById('controls').style.display = 'flex';
+            buildNav();
+            renderQuestion();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+
+        function buildNav() {
+            const grid = document.getElementById('navGrid');
+            grid.innerHTML = '';
+            quizData.forEach((q, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.id = `nav-${i}`;
+                btn.innerText = q.num;
+                btn.onclick = () => { 
+                    currentIdx = i; 
+                    renderQuestion(); 
+                    if(window.innerWidth <= 768) toggleSidebar(); 
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateNavStyles() {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${currentIdx}`).classList.add('active');
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentIdx];
+            document.getElementById('q-num').innerText = `Question ${q.num} of ${quizData.length}`;
+            document.getElementById('q-text').innerText = q.qText;
+            
+            const grid = document.getElementById('opt-grid');
+            grid.innerHTML = '';
+            
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback';
+            feedback.innerText = '';
+            feedback.style.display = 'none';
+
+            q.options.forEach((opt) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                
+                let textToDisplay = opt.text;
+                btn.innerHTML = `<span class="opt-letter">${opt.letter}.</span> ${textToDisplay}`;
+                
+                if (q.userAnswer) {
+                    btn.classList.add('disabled');
+                    if (opt.letter === q.ans) {
+                        btn.classList.add('actual-correct');
+                    }
+                    if (opt.letter === q.userAnswer && q.userAnswer !== q.ans) {
+                        btn.classList.add('selected-wrong');
+                    }
+                } else {
+                    btn.onclick = () => handleAnswer(opt.letter);
+                }
+                grid.appendChild(btn);
+            });
+
+            if (q.userAnswer) {
+                feedback.style.display = 'block';
+                if (q.userAnswer === q.ans) {
+                    feedback.className = 'feedback success';
+                    feedback.innerText = 'Correct! ' + (q.feedback ? '\n' + q.feedback : '');
+                } else {
+                    feedback.className = 'feedback error';
+                    feedback.innerText = `Incorrect! The correct answer is ${q.ans}. ` + (q.feedback ? '\n' + q.feedback : '');
+                }
+            }
+
+            // Update Controls
+            document.getElementById('btn-prev').disabled = currentIdx === 0;
+            
+            const btnNext = document.getElementById('btn-next');
+            const btnRetake = document.getElementById('btn-retake');
+
+            if (currentIdx === quizData.length - 1) {
+                btnNext.style.display = 'none';
+                btnRetake.style.display = 'inline-block';
+            } else {
+                btnNext.style.display = 'inline-block';
+                btnRetake.style.display = 'none';
+            }
+
+            updateNavStyles();
+            
+            if (window.MathJax) {
+                MathJax.typesetPromise([document.getElementById('quizCard')]);
+            }
+        }
+
+        function handleAnswer(letter) {
+            const q = quizData[currentIdx];
+            q.userAnswer = letter;
+            
+            const navBtn = document.getElementById(`nav-${currentIdx}`);
+            if (letter === q.ans) {
+                totalScore++;
+                navBtn.classList.add('correct');
+            } else {
+                navBtn.classList.add('wrong');
+            }
+            
+            document.getElementById('score-display').innerText = `Score: ${totalScore}`;
+            renderQuestion();
+        }
+
+        function nextQ() { if (currentIdx < quizData.length - 1) { currentIdx++; renderQuestion(); } }
+        function prevQ() { if (currentIdx > 0) { currentIdx--; renderQuestion(); } }
+
+        function retakeQuiz() {
+            quizData.forEach(q => { q.userAnswer = null; });
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('correct');
+                b.classList.remove('wrong');
+            });
+            totalScore = 0;
+            currentIdx = 0;
+            document.getElementById('score-display').innerText = `Score: 0`;
+            renderQuestion();
+            document.getElementById('main-content').scrollTo(0,0);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
